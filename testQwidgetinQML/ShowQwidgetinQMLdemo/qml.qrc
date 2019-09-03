@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>Mainwindow_show_hide.qml</file>
+        <file>Widget_show_hide.qml</file>
     </qresource>
 </RCC>

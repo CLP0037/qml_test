@@ -1,7 +1,4 @@
 QT += quick
-QT += gui
-QT       += core
-QT += widgets
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -16,10 +13,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp \
-    form.cpp \
-    form01.cpp \
-    comtrde/mainwindow.cpp
+        main.cpp
 
 RESOURCES += qml.qrc
 
@@ -33,33 +27,3 @@ QML_DESIGNER_IMPORT_PATH =
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-FORMS += \
-    form.ui \
-    form01.ui \
-    comtrde/mainwindow.ui
-
-HEADERS += \
-    form.h \
-    form01.h \
-    comtrde/mainwindow.h \
-    FFTW3_msvc_2017_64/api/api.h \
-    FFTW3_msvc_2017_64/api/f77funcs.h \
-    FFTW3_msvc_2017_64/api/fftw3.h \
-    FFTW3_msvc_2017_64/api/guru.h \
-    FFTW3_msvc_2017_64/api/guru64.h \
-    FFTW3_msvc_2017_64/api/mktensor-iodims.h \
-    FFTW3_msvc_2017_64/api/plan-guru-dft.h \
-    FFTW3_msvc_2017_64/api/plan-guru-dft-c2r.h \
-    FFTW3_msvc_2017_64/api/plan-guru-dft-r2c.h \
-    FFTW3_msvc_2017_64/api/plan-guru-r2r.h \
-    FFTW3_msvc_2017_64/api/plan-guru-split-dft.h \
-    FFTW3_msvc_2017_64/api/plan-guru-split-dft-c2r.h \
-    FFTW3_msvc_2017_64/api/plan-guru-split-dft-r2c.h \
-    FFTW3_msvc_2017_64/api/x77.h
-
-LIBS += -L$$PWD/lib -lcomtradeview
-LIBS += -L$$PWD/lib -lcomtrade_format
-LIBS += -L$$PWD/FFTW3_msvc_2017_64 -llibfftw3-3
-
-
