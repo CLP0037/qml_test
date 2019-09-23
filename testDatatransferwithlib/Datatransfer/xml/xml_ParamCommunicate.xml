@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+  <!--Row name="串口1" num="0x0080" address="0x0100" typeID="1;2" board="1"-->
+  <Row name="串口1" num="128" address="256" typeID="1;2" board="1">
+    <Column_1 name="串口号" type="char" length="6" desc="null">COM1</Column_1>
+    <Column_2 name="波特率" type="ushort" length="2" desc="null">9600</Column_2>
+    <Column_3 name="校验" type="byte" length="1" desc="null">0</Column_3>
+  </Row>
+  <Row name="串口2" num="0x0080" address="0x0100" typeID="1;2" board="1">
+    <Column_1 name="串口号" type="char" length="6" desc="null">COM2</Column_1>
+    <Column_2 name="波特率" type="ushort" length="2" desc="null">9600</Column_2>
+    <Column_3 name="校验" type="byte" length="1" desc="null">0</Column_3>
+  </Row>
+</Root>

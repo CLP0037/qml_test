@@ -18,6 +18,16 @@ Window {
                dev_wr.test()
            }
         }
+
+        Button{
+           text: qsTr("sendParamCommunicate")
+           onClicked: {
+               dev_wr.wr_sendParamCommunicate(2,
+                                              "COM1",9600,0,
+                                              "COM2",9600,0)
+           }
+        }
+
     }
 
 
