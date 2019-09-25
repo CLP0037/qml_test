@@ -13,6 +13,19 @@ Window {
 
     ColumnLayout{
         Button{
+           text: qsTr("连接")
+           onClicked: {
+               dev_wr.clientConnect()
+           }
+        }
+        Button{
+           text: qsTr("断开")
+           onClicked: {
+               dev_wr.clientDisConnect()
+           }
+        }
+
+        Button{
            text: qsTr("test")
            onClicked: {
                dev_wr.test()

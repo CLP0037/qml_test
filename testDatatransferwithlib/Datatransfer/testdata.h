@@ -9,6 +9,7 @@ class TestData : public QObject
 public:
     explicit TestData(QObject *parent = nullptr);
 
+    //刷新通讯测试
     void setParamCommunicate();
 
 signals:

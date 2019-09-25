@@ -76,7 +76,7 @@ public:
         char           parity2;
 
     }PARAM_COMMUNICATE;
-    PARAM_COMMUNICATE sParamCommunicate;
+    //PARAM_COMMUNICATE sParamCommunicate;
 
     //===============================================
     //系统配置参数

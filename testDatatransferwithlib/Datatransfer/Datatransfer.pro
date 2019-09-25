@@ -16,7 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
     datatransfer/devdatatransfer_wr.cpp \
-    testdata.cpp
+    testdata.cpp \
+    client/wrclientstuff.cpp
 
 RESOURCES += qml.qrc
 
@@ -34,7 +35,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     datatransfer/devdatatransfer_wr.h \
     datatransfer/publicdataclass.h \
-    testdata.h
+    testdata.h \
+    client/wrclientstuff.h
 
 INCLUDEPATH += ./include
 

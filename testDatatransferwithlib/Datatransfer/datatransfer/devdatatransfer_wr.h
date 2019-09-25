@@ -8,6 +8,10 @@
 
 
 #include "./include/privateprotocal/customprotocol.h"
+#include "./client/wrclientstuff.h"
+
+
+
 #include "../testdata.h"
 
 #define g_C2Q(str) QString::fromLocal8Bit(str)
@@ -19,6 +23,8 @@ class DevDataTransfer_wr : public QObject
 public:
     explicit DevDataTransfer_wr(QObject *parent = nullptr);
 
+    Q_INVOKABLE void clientConnect();
+    Q_INVOKABLE void clientDisConnect();
     Q_INVOKABLE void test();
 
 //    Q_INVOKABLE int wr_connect(QString hostname, int tcpPort);
@@ -179,7 +185,10 @@ signals:
 
 
 public slots:
-
+    void respondStatus(bool newStatus);
+    void respondmsgRecv(QByteArray qbaBuf);
+    void respondmsgSend(QByteArray qbaBuf);
+    void gotError(QAbstractSocket::SocketError err);
 
 public:
 
@@ -187,8 +196,15 @@ public:
     CustomProtocol::_XmlDataStruct XmlData;
     QList<CustomProtocol::_ReturnDataStruct> ReturnDataList;
 
+    //CustomProtocol::_XmlDataStruct XmlData_ParamCommunicate;
+
+
+
+
+
     //PublicDataClass pubData;
     TestData testdata;
+    WRClientStuff *wrClient;
 
 private:
 
