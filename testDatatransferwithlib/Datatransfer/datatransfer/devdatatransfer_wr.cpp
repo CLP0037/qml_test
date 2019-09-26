@@ -15,6 +15,14 @@ DevDataTransfer_wr::DevDataTransfer_wr(QObject *parent) : QObject(parent)
     // FIXME change this connection to the new syntax
     connect(wrClient->tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)),this, SLOT(gotError(QAbstractSocket::SocketError)));
 
+//    void clientNewConnect(QString ip , int port);
+//    void clientDisconnected(QString ip , int port);
+//    //void msgSend(QByteArray sendBuf);
+//    void msgRecv(QByteArray recvBuf);
+    wrServer = new WRServerStuff(this);
+    connect(wrServer, &WRServerStuff::clientNewConnect,this, &DevDataTransfer_wr::respondclientNewConnect);
+    connect(wrServer, &WRServerStuff::clientDisconnected,this, &DevDataTransfer_wr::respondclientDisconnected);
+    connect(wrServer, &WRServerStuff::msgRecv,this, &DevDataTransfer_wr::respondmsgRecv_server);
 }
 
 void DevDataTransfer_wr::clientConnect()
@@ -30,6 +38,104 @@ void DevDataTransfer_wr::clientDisConnect()
 void DevDataTransfer_wr::test()
 {
     qDebug()<<"test in datatransfer";
+}
+
+void DevDataTransfer_wr::startServer(int port)
+{
+    int rtn = wrServer->startListen(port);
+    if(rtn < 0)
+    {
+        qDebug()<<g_C2Q("启动监听失败");
+    }
+    qDebug()<<g_C2Q("启动监听");
+}
+
+void DevDataTransfer_wr::stopServer()
+{
+    wrServer->stopListen();
+}
+
+void DevDataTransfer_wr::serverSendbuf_filepath(int index,QString filepath)//测试===录波完成路径回复
+{
+    char objecttype = 6;
+    char acttype = 1;
+    char typeID = 1;
+    unsigned int masteradr = 0;
+    unsigned int slaveadr = 0;
+    char *pbuf=new char[1024];
+    int len=0;
+    bool isover = true;
+    char SQ = 1;
+
+    CustomProtocol::_RowInforStruct temp_row;
+    CustomProtocol::_ColumnInforStruct temp_column;
+    temp_row.RowTypeID = typeID;//下设或读取
+
+    //信息体地址：0x00010000
+    temp_row.RowInfoAddr = 0x0001;//参数信息体地址(高位)
+    temp_row.RowOffset = 0x0000;//行偏移量(低位)
+
+    temp_row.Param.clear();
+    temp_column.value = filepath;
+    temp_column.type = 0x0D;//string
+    temp_column.length = filepath.trimmed().length();
+    temp_row.Param.append(temp_column);
+    XmlData.ParamList.clear();
+    XmlData.ParamList.append(temp_row);
+
+    priProtocal.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,SQ);
+
+    QByteArray buf;
+    buf.clear();
+    QString temp_str;
+    for(int i=0;i<len;i++)
+    {
+        temp_str += QString("%1").arg((unsigned char)(*(pbuf+i)),2,16,QLatin1Char('0'));
+        temp_str += " ";
+        buf.append((unsigned char)(*(pbuf+i)));
+    }
+    qDebug()<<"server send:" << temp_str<<"(len="<<len<<")";
+
+    wrServer->sendbufToClient(index,buf);
+}
+
+void DevDataTransfer_wr::serverSendbuf_meter(int index)
+{
+    char objecttype = 6;
+    char acttype = 1;
+    char typeID = 1;
+    unsigned int masteradr = 0;
+    unsigned int slaveadr = 0;
+    char *pbuf=new char[1024];
+    int len=0;
+    bool isover;
+    char SQ = 1;
+
+    CustomProtocol::_RowInforStruct temp_row;
+    CustomProtocol::_ColumnInforStruct temp_column;
+    temp_row.RowTypeID = typeID;//下设或读取
+
+    //信息体地址：0x00010001
+    temp_row.RowInfoAddr = 0x0001;//参数信息体地址(高位)
+    temp_row.RowOffset = 0x0001;//行偏移量(低位)
+
+    //传值
+
+
+    priProtocal.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,SQ);
+
+    QByteArray buf;
+    buf.clear();
+    QString temp_str;
+    for(int i=0;i<len;i++)
+    {
+        temp_str += QString("%1").arg((unsigned char)(*(pbuf+i)),2,16,QLatin1Char('0'));
+        temp_str += " ";
+        buf.append((unsigned char)(*(pbuf+i)));
+    }
+    qDebug()<<"server send:" << temp_str<<"(len="<<len<<")";
+
+    wrServer->sendbufToClient(index,buf);
 }
 
 
@@ -392,5 +498,28 @@ void DevDataTransfer_wr::respondmsgSend(QByteArray qbaBuf)
 void DevDataTransfer_wr::gotError(QAbstractSocket::SocketError err)
 {
     qDebug()<<"SocketError num:"<<err;
+}
+
+void DevDataTransfer_wr::respondclientNewConnect(QString ip , int port)
+{
+    qDebug()<<"respondclientNewConnect"<<ip<<":"<<port;
+}
+void DevDataTransfer_wr::respondclientDisconnected(QString ip , int port)
+{
+    qDebug()<<"respondclientDisconnected"<<ip<<":"<<port;
+}
+//void respondmsgSend_server(QByteArray sendBuf);
+void DevDataTransfer_wr::respondmsgRecv_server(QString ip , int port,QByteArray qbaBuf)
+{
+    char* pbuf = new char[1024];
+
+    QString temp_str;
+    for(int i=0;i<qbaBuf.size();i++)
+    {
+        temp_str += QString("%1").arg((unsigned char)(qbaBuf[i]),2,16,QLatin1Char('0'));
+        temp_str += " ";
+        pbuf[i] = (unsigned char)(qbaBuf[i]);
+    }
+    qDebug()<<"client recv:"  << temp_str<<"(len="<<qbaBuf.size()<<",from"<<ip<<":"<<port<<")";
 }
 

@@ -65,6 +65,9 @@ public:
     GENERAL_DATA_STUCT generalWRParamPulseOut;
     GENERAL_DATA_STUCT generalWRParamCalibration[CHANNELNUM_ANALOG];
 
+
+    GENERAL_DATA_STUCT generalMeterValue;//标准表传输数据
+
     //===============================================
     //通讯参数
     typedef struct{
@@ -191,6 +194,96 @@ public:
     //===============================================
     //设备录波文件召测
 
+
+    //===============================================
+    //召测传输数据
+
+    //电能量数据召测 是否与当前路数关联，按最大4路定义
+    typedef  struct{
+        float ernergy_DCType;//电磁式电能量示值
+        float ernergy_DZType;//电子式电能量示值
+        float meterERR_1;
+        float meterERR_2;
+        float meterERR_3;
+        float meterERR_4;
+        float meterERR_5;
+        float meterERR_6;
+        float meterERR_7;
+        float meterERR_8;
+    }CALL_ErnergyValue;
+
+    //标准表实时测量数据召测  标准表实时采集的电压电流功率等值以及谐波采集值
+    //1路电压参数
+    typedef  struct{
+        float UA;
+        float UB;
+        float UC;
+        float UAB;
+        float UBC;
+        float UCA;
+        float _3U0;
+        float _3U0_Cal;
+        float RMS_UA; 	//有效值UA1
+        float RMS_UB;	//有效值UB1
+        float RMS_UC;	//有效值UC1
+        float RMS_3U0;	//有效值U01
+        float UA_Angle;
+        float UB_Angle;
+        float UC_Angle;
+        float _3U0_Angle;
+        float _3U0_Cal_Angle;
+        float UAB_Angle;
+        float UCB_Angle;
+        float UAC_Angle;
+    }UrelatedValue_oneroad;
+    //1路电流参数
+    typedef  struct{
+        float IA;
+        float IB;
+        float IC;
+        float _3I0;
+        float _3I0_Cal;
+        float RMS_IA; 	//有效值IA1
+        float RMS_IB;	//有效值IB1
+        float RMS_IC;	//有效值IC1
+        float RMS_3I0;	//有效值I01
+        float IA_Angle;
+        float IB_Angle;
+        float IC_Angle;
+        float _3I0_Angle;
+        float _3I0_Cal_Angle;
+    }IrelatedValue_oneroad;
+    //1组电压电流参数
+    typedef  struct{
+
+    }UIrelatedValue_onegroup;
+
+    typedef  struct{
+
+    }CALL_StandardMeter_analog;
+
+    //状态信息召测
+    typedef  struct{
+        char inputState_1;//开入1状态
+        char inputState_2;
+        char inputState_3;
+        char inputState_4;
+        char inputState_5;
+        char inputState_6;
+        char inputState_7;
+        char inputState_8;
+        char inputState_9;
+        char inputState_10;
+        char inputState_11;
+        char inputState_12;
+        char inputState_13;
+        char inputState_14;
+        char inputState_15;
+        char inputState_16;
+        char waveState;   //录波状态
+        char timeState;   //对时状态
+        char devWarnning; //设备告警
+    }CALL_StandardMeter_switch;
 };
 
 

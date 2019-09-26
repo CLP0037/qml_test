@@ -41,6 +41,34 @@ Window {
            }
         }
 
+
+
+
+        Button{
+           text: qsTr("启动监听")
+           onClicked: {
+               dev_wr.startServer(4001)
+           }
+        }
+        Button{
+           text: qsTr("停止监听")
+           onClicked: {
+               dev_wr.stopServer()
+           }
+        }
+        Button{
+           text: qsTr("客户端1发送")
+           onClicked: {
+               dev_wr.serverSendbuf_filepath(0,"C:/waveFile/test.cfg")
+           }
+        }
+        Button{
+           text: qsTr("客户端2发送")
+           onClicked: {
+               //dev_wr.stopServer()
+           }
+        }
+
     }
 
 

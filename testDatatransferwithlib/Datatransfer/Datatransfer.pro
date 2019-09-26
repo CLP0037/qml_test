@@ -17,7 +17,8 @@ SOURCES += \
         main.cpp \
     datatransfer/devdatatransfer_wr.cpp \
     testdata.cpp \
-    client/wrclientstuff.cpp
+    client/wrclientstuff.cpp \
+    server/wrserverstuff.cpp
 
 RESOURCES += qml.qrc
 
@@ -36,7 +37,8 @@ HEADERS += \
     datatransfer/devdatatransfer_wr.h \
     datatransfer/publicdataclass.h \
     testdata.h \
-    client/wrclientstuff.h
+    client/wrclientstuff.h \
+    server/wrserverstuff.h
 
 INCLUDEPATH += ./include
 

@@ -9,7 +9,7 @@
 
 #include "./include/privateprotocal/customprotocol.h"
 #include "./client/wrclientstuff.h"
-
+#include "./server/wrserverstuff.h"
 
 
 #include "../testdata.h"
@@ -26,6 +26,11 @@ public:
     Q_INVOKABLE void clientConnect();
     Q_INVOKABLE void clientDisConnect();
     Q_INVOKABLE void test();
+
+    Q_INVOKABLE void startServer(int port);
+    Q_INVOKABLE void stopServer();
+    Q_INVOKABLE void serverSendbuf_filepath(int index,QString filepath);//sendbufToClient
+    Q_INVOKABLE void serverSendbuf_meter(int index);
 
 //    Q_INVOKABLE int wr_connect(QString hostname, int tcpPort);
 
@@ -190,6 +195,11 @@ public slots:
     void respondmsgSend(QByteArray qbaBuf);
     void gotError(QAbstractSocket::SocketError err);
 
+    void respondclientNewConnect(QString ip , int port);
+    void respondclientDisconnected(QString ip , int port);
+    //void respondmsgSend_server(QByteArray sendBuf);
+    void respondmsgRecv_server(QString ip , int port,QByteArray recvBuf);
+
 public:
 
     CustomProtocol priProtocal;
@@ -205,6 +215,7 @@ public:
     //PublicDataClass pubData;
     TestData testdata;
     WRClientStuff *wrClient;
+    WRServerStuff *wrServer;
 
 private:
 
