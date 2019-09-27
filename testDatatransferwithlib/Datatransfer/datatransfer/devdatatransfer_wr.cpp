@@ -521,5 +521,115 @@ void DevDataTransfer_wr::respondmsgRecv_server(QString ip , int port,QByteArray 
         pbuf[i] = (unsigned char)(qbaBuf[i]);
     }
     qDebug()<<"client recv:"  << temp_str<<"(len="<<qbaBuf.size()<<",from"<<ip<<":"<<port<<")";
+
+
+    //解析
+    QList<CustomProtocol::_ReturnDataStruct> returndatalist;//针对通讯连帧
+    CustomProtocol::_XmlDataStruct rtnXmlData;
+    CustomProtocol::_RowInforStruct temp_row;
+    CustomProtocol::_ColumnInforStruct temp_column;
+
+    priProtocal.DecodeFrame(pbuf,qbaBuf.size(),returndatalist);
+    qDebug()<<"returndatalist count:"<<returndatalist.count();
+
+
+    if(returndatalist.count() > 0)
+    {
+        qDebug()<<"TypeID:"<<returndatalist[0].TypeID;
+        qDebug()<<"ObjectType:"<<returndatalist[0].ObjectType;
+        qDebug()<<"DataLength:"<<returndatalist[0].DataLength;
+        qDebug()<<"Revlen:"<<returndatalist[0].Revlen;
+        qDebug()<<"Revlen:"<<returndatalist[0].ActType;
+
+        switch(returndatalist[0].ActType)//设备操作类型：1-录波仪；2-标准表
+        {
+            case 1:
+            {
+                //若后期需要多个功能，进行拆解
+                //接收到录波设置
+//                Float 追忆时间
+//                Float 总录波时间
+//                Int 采样率
+//                String 录波文件名称
+//                Int 触发方式（暂无）
+//                Bool 开入逻辑，0或1与
+//                Bool x 16(开入选择)
+
+                temp_column.value = "";
+                temp_column.type = pubData.Type_float;
+                temp_column.length = 4;
+                temp_row.Param.append(temp_column);
+
+                temp_column.value = "";
+                temp_column.type = pubData.Type_float;
+                temp_column.length = 4;
+                temp_row.Param.append(temp_column);
+
+                temp_column.value = "";
+                temp_column.type = pubData.Type_int;
+                temp_column.length = 4;
+                temp_row.Param.append(temp_column);
+
+                temp_column.value = "";
+                temp_column.type = pubData.Type_string;
+                temp_column.length = 64;
+                temp_row.Param.append(temp_column);
+
+                temp_column.value = "";
+                temp_column.type = pubData.Type_int;
+                temp_column.length = 4;
+                temp_row.Param.append(temp_column);
+
+                temp_column.value = "";
+                temp_column.type = pubData.Type_bool;
+                temp_column.length = 1;
+                temp_row.Param.append(temp_column);
+
+                temp_column.value = "";
+                temp_column.type = pubData.Type_bool;
+                temp_column.length = 1;
+                temp_row.Param.append(temp_column);
+
+                rtnXmlData.ParamList.clear();
+                rtnXmlData.ParamList.append(temp_row);
+
+
+            }break;
+            case 2:
+            {
+
+            }break;
+        }
+
+
+        priProtocal.AnalysisRevData(rtnXmlData,1,returndatalist[0].DataField,returndatalist[0].DataLength);
+        qDebug()<<"ParamList.count():"<<rtnXmlData.ParamList.count();
+        if(XmlData.ParamList.count() > 0)
+        {
+            qDebug()<<"RowInfoAddr:"<<rtnXmlData.ParamList[0].RowInfoAddr;
+            qDebug()<<"RowOffset:"<<rtnXmlData.ParamList[0].RowOffset;
+
+            for(int i=0;i<rtnXmlData.ParamList.count();i++)
+            {
+                for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
+                {
+                    //XmlData.ParamList[i].Param[j].value = "";
+                    qDebug()<<"rtnXmlData.ParamList[i].Param[j].value"<<rtnXmlData.ParamList[i].Param[j].value
+                           <<"(i="<<i<<",j="<<j<<")";
+                }
+            }
+        }
+
+
+
+    }
+
+
+
+
+
+
+
+
 }
 

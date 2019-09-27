@@ -10,7 +10,7 @@
 #include "./include/privateprotocal/customprotocol.h"
 #include "./client/wrclientstuff.h"
 #include "./server/wrserverstuff.h"
-
+//#include "publicdataclass.h"
 
 #include "../testdata.h"
 
