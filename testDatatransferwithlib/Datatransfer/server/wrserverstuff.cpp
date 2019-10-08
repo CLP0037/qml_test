@@ -116,14 +116,14 @@ void WRServerStuff::readClient()
 
 
     QByteArray readBuf = clientSocket->readAll();
-    QString str;
-    for(int i=0;i<readBuf.size();i++)
-    {
-        str += QString("%1").arg(readBuf[i],2,16,QLatin1Char('0'));
-        str += " ";
-    }
-    qDebug()<<"msgRecv:"<<str<<"(size="<<readBuf.size()<<")";
-    //emit gotNewMesssage(str);
+//    QString str;
+//    for(int i=0;i<readBuf.size();i++)
+//    {
+//        str += QString("%1").arg(readBuf[i],2,16,QLatin1Char('0'));
+//        str += " ";
+//    }
+//    qDebug()<<"msgRecv:"<<str<<"(size="<<readBuf.size()<<")";
+//    //emit gotNewMesssage(str);
     emit(msgRecv(ip,port,readBuf));
 }
 

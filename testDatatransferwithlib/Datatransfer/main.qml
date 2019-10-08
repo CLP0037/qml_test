@@ -35,14 +35,40 @@ Window {
         Button{
            text: qsTr("sendParamCommunicate")
            onClicked: {
-               dev_wr.wr_sendParamCommunicate(2,
+               dev_wr.wr_sendParamCommunicate(2)/*,
                                               "COM1",9600,0,
-                                              "COM2",9600,0)
+                                              "COM2",9600,0)*/
+           }
+        }
+
+        Button{
+           text: qsTr("sendParamDevInfo")
+           onClicked: {
+               dev_wr.wr_sendParamDevInfo(2)
+               //dev_wr.wr_sendParamDevInfo()
            }
         }
 
 
 
+        RowLayout{
+            height: 50
+            spacing: 10
+
+            Button{
+                text: qsTr("通道参数(下设)")
+                onClicked: {
+                    dev_wr.wr_sendParamChannelInfo(1)
+                }
+            }
+            Button{
+                text: qsTr("通道参数(读取)")
+                onClicked: {
+                    dev_wr.wr_sendParamChannelInfo(2)
+                }
+             }
+
+        }
 
         Button{
            text: qsTr("启动监听")

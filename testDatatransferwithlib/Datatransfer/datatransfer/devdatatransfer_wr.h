@@ -48,34 +48,34 @@ public:
      * @param boundRate2
      * @param parity2
      */
-    Q_INVOKABLE void wr_sendParamCommunicate(int            typeID,
+    Q_INVOKABLE void wr_sendParamCommunicate(int            typeID);/*,
                                              QString        portName1,
                                              unsigned short boundRate1,
                                              char           parity1,
                                              QString        portName2,
                                              unsigned short boundRate2,
-                                             char           parity2);
+                                             char           parity2);*/
 
 
-//    /**
-//     * @brief wr_sendParamDevInfo 设备标识参数
-//     * @param typeID 功能码： 下载-1；读取-2
-//     * @param companyName 公司名称
-//     * @param stationName 场站名称
-//     * @param deviceName 装置名称
-//     * @param factoryNum 出厂编号
-//     */
-//    Q_INVOKABLE void wr_sendParamDevInfo(int            typeID,
-//                             QString        companyName,
-//                            QString        stationName,
-//                            QString        deviceName,
-//                            QString        factoryNum);
+    /**
+     * @brief wr_sendParamDevInfo 设备标识参数
+     * @param typeID 功能码： 下载-1；读取-2
+     * @param companyName 公司名称
+     * @param stationName 场站名称
+     * @param deviceName 装置名称
+     * @param factoryNum 出厂编号
+     */
+    Q_INVOKABLE void wr_sendParamDevInfo(int            typeID);/*,
+                             QString        companyName,
+                            QString        stationName,
+                            QString        deviceName,
+                            QString        factoryNum);*/
 
-//    /**
-//     * @brief wr_sendParamChannelInfo  采集通道参数
-//     * @param typeID 功能码： 下载-1；读取-2
-//     */
-//    Q_INVOKABLE void wr_sendParamChannelInfo(int            typeID);
+    /**
+     * @brief wr_sendParamChannelInfo  采集通道参数
+     * @param typeID 功能码： 下载-1；读取-2
+     */
+    Q_INVOKABLE void wr_sendParamChannelInfo(int            typeID);
 
 //    /**
 //     * @brief wr_sendMaxSampleRate  最高采样率
@@ -207,7 +207,7 @@ public:
     QList<CustomProtocol::_ReturnDataStruct> ReturnDataList;
 
     //CustomProtocol::_XmlDataStruct XmlData_ParamCommunicate;
-
+    QByteArray returnCacheData;//接收数据域缓存
 
 
 

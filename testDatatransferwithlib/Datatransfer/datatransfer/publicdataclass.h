@@ -6,6 +6,8 @@
 #define CHANNELNUM_ANALOG 18 //模拟量通道数
 #define CHANNELNUM_SWITCH 16 //开关量通道数
 
+#define g_C2Q(str) QString::fromLocal8Bit(str)
+
 class PublicDataClass: public QObject
 {
     Q_OBJECT
@@ -40,6 +42,111 @@ public:
        Type_binaryfile
    };
 
+   int getLenfromType(int type)
+   {
+       int len = 0;
+       switch(type)
+       {
+       case Type_byte:
+       {
+           len = 1;
+       }break;
+       case Type_sbyte:
+       {
+           len = 1;
+       }break;
+       case Type_ushort:
+       {
+           len = 2;
+       }break;
+       case Type_short:
+       {
+           len = 2;
+       }break;
+       case Type_uint:
+       {
+           len = 4;
+       }break;
+       case Type_int:
+       {
+           len = 4;
+       }break;
+       case Type_ulong:
+       {
+           len = 8;
+       }break;
+       case Type_long:
+           {
+              len = 8;
+           }break;
+       case Type_float:
+           {
+               len = 4;
+           }break;
+       case Type_double:
+           {
+               len = 8;
+           }break;
+       case Type_bool:
+           {
+               len = 1;
+           }break;
+       case Type_char:
+           {
+              //
+           }break;
+       case Type_string:
+           {
+               //
+           }break;
+       case Type_bcd:
+           {
+               //
+           }break;
+       case Type_ibcd:
+           {
+               //
+           }break;
+       case Type_bs8:
+           {
+               len = 1;
+           }break;
+       case Type_bs16:
+           {
+               len = 2;
+           }break;
+       case Type_ipv4:
+           {
+              len = 4;
+           }break;
+       case Type_mac:
+           {
+               len = 6;
+           }break;
+       case Type_gbk:
+           {
+               //
+           }break;
+       case Type_utf8:
+           {
+               //
+           }break;
+       case Type_gb2312:
+           {
+               //
+           }break;
+       case Type_datetime:
+           {
+               len = 7;
+           }break;
+       case Type_binaryfile:
+           {
+               //
+           }break;
+       }
+
+       return len;
+   }
 
     //========== data ==========//
     typedef struct{
@@ -89,22 +196,25 @@ public:
         QString        stationName;
         QString        deviceName;
         QString        factoryNum;
+        char comtradeVersion;
+        char comtradeType;
 
     }PARAM_DEVINFO;
-    PARAM_DEVINFO sParamDevInfo;
+    //PARAM_DEVINFO sParamDevInfo;
 
     //采集通道参数
     typedef struct{
         unsigned short index;
+        QString name;//char[16]
         char property;
         char phase;
         char lineNum;
-        float ratedValue;
-        float ratio;
-        QString name;//char[16]
-        float range;
+        char groupNum;//组序号
+        QString ratio;//10字节:*/*格式
+        float ratedValue;//额定值
+        float range;//量程
     }PARAM_CHANNELINFO;
-    PARAM_CHANNELINFO sParamChannelInfo[CHANNELNUM_ANALOG];
+    //PARAM_CHANNELINFO sParamChannelInfo[CHANNELNUM_ANALOG];
 
     //最高采样率
     unsigned int mMaxSampleRate;
