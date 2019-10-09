@@ -77,13 +77,13 @@ void WRClientStuff::readyRead()
 {
     qDebug()<<"tcpSocket->bytesAvailable():"<<tcpSocket->bytesAvailable();
     QByteArray readBuf = tcpSocket->readAll();
-    QString str;
-    for(int i=0;i<readBuf.size();i++)
-    {
-        str += QString("%1").arg(readBuf[i],2,16,QLatin1Char('0'));
-        str += " ";
-    }
-    qDebug()<<"msgRecv:"<<str<<"(size="<<readBuf.size()<<")";
+//    QString str;
+//    for(int i=0;i<readBuf.size();i++)
+//    {
+//        str += QString("%1").arg(readBuf[i],2,16,QLatin1Char('0'));
+//        str += " ";
+//    }
+//    qDebug()<<"msgRecv:"<<str<<"(size="<<readBuf.size()<<")";
 
     emit(msgRecv(readBuf));
 }

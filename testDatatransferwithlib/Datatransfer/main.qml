@@ -35,19 +35,45 @@ Window {
         Button{
            text: qsTr("sendParamCommunicate")
            onClicked: {
-               dev_wr.wr_sendParamCommunicate(2,
+               dev_wr.wr_sendParamCommunicate(2)/*,
                                               "COM1",9600,0,
-                                              "COM2",9600,0)
+                                              "COM2",9600,0)*/
+           }
+        }
+
+        Button{
+           text: qsTr("sendParamDevInfo")
+           onClicked: {
+               dev_wr.wr_sendParamDevInfo(2)
+               //dev_wr.wr_sendParamDevInfo()
            }
         }
 
 
 
+        RowLayout{
+            height: 50
+            spacing: 10
+
+            Button{
+                text: qsTr("通道参数(下设)")
+                onClicked: {
+                    dev_wr.wr_sendParamChannelInfo(1)
+                }
+            }
+            Button{
+                text: qsTr("通道参数(读取)")
+                onClicked: {
+                    dev_wr.wr_sendParamChannelInfo(2)
+                }
+             }
+
+        }
 
         Button{
            text: qsTr("启动监听")
            onClicked: {
-               dev_wr.startServer(4001)
+               dev_wr.startServer(4002)
            }
         }
         Button{
@@ -57,13 +83,13 @@ Window {
            }
         }
         Button{
-           text: qsTr("客户端1发送")
+           text: qsTr("录波完成路径回复")//客户端1发送
            onClicked: {
                dev_wr.serverSendbuf_filepath(0,"C:/waveFile/test.cfg")
            }
         }
         Button{
-           text: qsTr("客户端2发送")
+           text: qsTr("标准表读取回复")
            onClicked: {
                //dev_wr.stopServer()
            }

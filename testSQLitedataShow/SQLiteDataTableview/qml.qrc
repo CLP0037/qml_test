@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Dialog_WR_AnalogChannel.qml</file>
+        <file>components/checked.png</file>
+        <file>components/unchecked.png</file>
+        <file>Dialog_SYS_ChannelInfo.qml</file>
+    </qresource>
+</RCC>
