@@ -312,20 +312,20 @@ void DevDataTransfer_wr::wr_sendParamDevInfo(int            typeID)
     XmlData.ParamList.clear();
     if(typeID == 1)//下载参数
     {//参数赋值
+        for(int i=0;i<pubData.generalParamDevInfo.dataNum;i++)
+        {
+    //        qDebug()<<"pubData.generalParamDevInfo.dataList_"<<i<<":"
+    //               <<pubData.generalParamDevInfo.dataList[i].value
+    //              <<","<<pubData.generalParamDevInfo.dataList[i].type
+    //             <<","<<pubData.generalParamDevInfo.dataList[i].length;
 
+            temp_column.value = pubData.generalParamDevInfo.dataList[i].value;
+            temp_column.type = pubData.generalParamDevInfo.dataList[i].type;
+            temp_column.length = pubData.generalParamDevInfo.dataList[i].length;
+            temp_row.Param.append(temp_column);
+        }
     }
-    for(int i=0;i<pubData.generalParamDevInfo.dataNum;i++)
-    {
-//        qDebug()<<"pubData.generalParamDevInfo.dataList_"<<i<<":"
-//               <<pubData.generalParamDevInfo.dataList[i].value
-//              <<","<<pubData.generalParamDevInfo.dataList[i].type
-//             <<","<<pubData.generalParamDevInfo.dataList[i].length;
 
-        temp_column.value = pubData.generalParamDevInfo.dataList[i].value;
-        temp_column.type = pubData.generalParamDevInfo.dataList[i].type;
-        temp_column.length = pubData.generalParamDevInfo.dataList[i].length;
-        temp_row.Param.append(temp_column);
-    }
 
 
     XmlData.ParamList.append(temp_row);
@@ -416,6 +416,227 @@ void DevDataTransfer_wr::wr_sendParamChannelInfo(int            typeID)
     wrClient->bufSend(buf);
 
 }
+
+
+void DevDataTransfer_wr::wr_sendMaxSampleRate(int typeID, unsigned int value)
+{
+    returnCacheData.clear();//新的命令下发，接收缓存清空
+
+    char objecttype = 5;
+    char acttype = 2;
+    unsigned int masteradr = 0;
+    unsigned int slaveadr = 0;
+    char *pbuf=new char[1024];
+    int len=0;
+    bool isover;
+
+    //直接赋值
+    CustomProtocol::_RowInforStruct temp_row;
+    CustomProtocol::_ColumnInforStruct temp_column;
+
+    temp_row.RowTypeID = typeID;//下设或读取
+
+    //信息体地址：0x01000281
+    temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+    temp_row.RowOffset = 0x0281;//行偏移量(低位)
+
+    temp_row.Param.clear();
+    XmlData.ParamList.clear();
+    if(typeID == 1)//下载参数
+    {//参数赋值
+        temp_column.value = QString::number(value);
+        temp_column.type = pubData.Type_ushort;
+        temp_column.length = 2;
+        temp_row.Param.append(temp_column);
+
+    }
+
+    XmlData.ParamList.append(temp_row);
+
+    priProtocal.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,1);
+
+    QByteArray buf;
+    buf.clear();
+    QString temp_str;
+    for(int i=0;i<len;i++)
+    {
+        temp_str += QString("%1").arg((unsigned char)(*(pbuf+i)),2,16,QLatin1Char('0'));
+        temp_str += " ";
+        buf.append((unsigned char)(*(pbuf+i)));
+    }
+    qDebug()<<"client send(sendMaxSampleRate):" << temp_str<<"(len="<<len<<")";
+
+    wrClient->bufSend(buf);
+}
+
+void DevDataTransfer_wr::wr_sendTimeCalibrationType(int typeID,char  value  )
+{
+    returnCacheData.clear();//新的命令下发，接收缓存清空
+
+    char objecttype = 5;
+    char acttype = 2;
+    unsigned int masteradr = 0;
+    unsigned int slaveadr = 0;
+    char *pbuf=new char[1024];
+    int len=0;
+    bool isover;
+
+    //直接赋值
+    CustomProtocol::_RowInforStruct temp_row;
+    CustomProtocol::_ColumnInforStruct temp_column;
+
+    temp_row.RowTypeID = typeID;//下设或读取
+
+    //信息体地址：0x01000381
+    temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+    temp_row.RowOffset = 0x0381;//行偏移量(低位)
+
+    temp_row.Param.clear();
+    XmlData.ParamList.clear();
+    if(typeID == 1)//下载参数
+    {//参数赋值
+        temp_column.value = QString::number(value);
+        temp_column.type = pubData.Type_ushort;
+        temp_column.length = 2;
+        temp_row.Param.append(temp_column);
+
+    }
+
+    XmlData.ParamList.append(temp_row);
+
+    priProtocal.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,1);
+
+    QByteArray buf;
+    buf.clear();
+    QString temp_str;
+    for(int i=0;i<len;i++)
+    {
+        temp_str += QString("%1").arg((unsigned char)(*(pbuf+i)),2,16,QLatin1Char('0'));
+        temp_str += " ";
+        buf.append((unsigned char)(*(pbuf+i)));
+    }
+    qDebug()<<"client send(sendMaxSampleRate):" << temp_str<<"(len="<<len<<")";
+
+    wrClient->bufSend(buf);
+}
+
+void DevDataTransfer_wr::wr_sendTimeOperate(int typeID,QString time)
+{
+    returnCacheData.clear();//新的命令下发，接收缓存清空
+
+    char objecttype = 5;
+    char acttype = 2;
+    unsigned int masteradr = 0;
+    unsigned int slaveadr = 0;
+    char *pbuf=new char[1024];
+    int len=0;
+    bool isover;
+
+    //直接赋值
+    CustomProtocol::_RowInforStruct temp_row;
+    CustomProtocol::_ColumnInforStruct temp_column;
+
+    temp_row.RowTypeID = typeID;//下设或读取
+
+    //信息体地址：0x01000481
+    temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+    temp_row.RowOffset = 0x0481;//行偏移量(低位)
+
+    temp_row.Param.clear();
+    XmlData.ParamList.clear();
+    if(typeID == 1)//下载参数
+    {//参数赋值
+        temp_column.value = time;
+        temp_column.type = pubData.Type_datetime;
+        temp_column.length = 7;
+        temp_row.Param.append(temp_column);
+    }
+
+    XmlData.ParamList.append(temp_row);
+
+    priProtocal.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,1);
+
+    QByteArray buf;
+    buf.clear();
+    QString temp_str;
+    for(int i=0;i<len;i++)
+    {
+        temp_str += QString("%1").arg((unsigned char)(*(pbuf+i)),2,16,QLatin1Char('0'));
+        temp_str += " ";
+        buf.append((unsigned char)(*(pbuf+i)));
+    }
+    qDebug()<<"client send(sendMaxSampleRate):" << temp_str<<"(len="<<len<<")";
+
+    wrClient->bufSend(buf);
+}
+
+void DevDataTransfer_wr::wr_sendWRParamTransient(int            typeID)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendWRParamSteady(int            typeID)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendWRParamSwitch(int            typeID)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendWRParamAnalog(int            typeID)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendWRParamComponent(int            typeID)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendWROperate(char value)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendPowerMeterOperate(char value)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendPowerMeterParamPulseIn(int            typeID)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendPowerMeterParamPulseOut(int            typeID)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendCalibrationParam(int typeID,int currentIndex)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendCalibrationOperate(int typeID,int currentIndex)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendRealDataTransfer(char value)
+{
+
+}
+
+void DevDataTransfer_wr::wr_sendMeterRealDataCall()
+{
+
+}
+
+
+
 
 void DevDataTransfer_wr::respondStatus(bool newStatus)
 {
@@ -794,83 +1015,6 @@ QString DevDataTransfer_wr::unicodeToCn(QString Str)
         filename.replace(idx, 6, QChar(nHex));
     } while (filename.indexOf("\\u") != -1);
     return filename;
-}
-
-void DevDataTransfer_wr::wr_sendMaxSampleRate(int            typeID,
-                                              unsigned int value)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendTimeCalibrationType(int            typeID,
-                                                    char         value  )
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendWRParamTransient(int            typeID)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendWRParamSteady(int            typeID)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendWRParamSwitch(int            typeID)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendWRParamAnalog(int            typeID)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendWRParamComponent(int            typeID)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendWROperate(char value)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendPowerMeterOperate(char value)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendPowerMeterParamPulseIn(int            typeID)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendPowerMeterParamPulseOut(int            typeID)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendCalibrationParam(int typeID,int currentIndex)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendCalibrationOperate(int typeID,int currentIndex)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendRealDataTransfer(char value)
-{
-
-}
-
-void DevDataTransfer_wr::wr_sendMeterRealDataCall()
-{
-
 }
 
 

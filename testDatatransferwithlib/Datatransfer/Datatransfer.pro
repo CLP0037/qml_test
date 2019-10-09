@@ -42,6 +42,21 @@ HEADERS += \
 
 INCLUDEPATH += ./include
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/lib/release/ -lCustomProtocol
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/lib/debug/ -lCustomProtocol
-else:unix: LIBS += -L$$PWD/lib/ -lCustomProtocol
+#message($$QT_VERSION)
+equals(QT_VERSION, 5.12.2){#message($$QT_VERSION)
+    message("version 5.12.2")
+    win32:CONFIG(release, debug|release): LIBS += -L$$PWD/lib/5.12/release/ -lCustomProtocol
+    else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/lib/5.12/debug/ -lCustomProtocol
+    else:unix: LIBS += -L$$PWD/lib/ -lCustomProtocol
+}
+
+equals(QT_VERSION, 5.9.7){#message($$QT_VERSION)
+    message("version 5.9.7")
+    win32:CONFIG(release, debug|release): LIBS += -L$$PWD/lib/5.9.7/release/ -lCustomProtocol
+    else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/lib/5.9.7/debug/ -lCustomProtocol
+    else:unix: LIBS += -L$$PWD/lib/ -lCustomProtocol
+}
+
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/lib/release/ -lCustomProtocol
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/lib/debug/ -lCustomProtocol
+#else:unix: LIBS += -L$$PWD/lib/ -lCustomProtocol

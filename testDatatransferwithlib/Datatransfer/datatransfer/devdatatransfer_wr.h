@@ -98,8 +98,8 @@ public:
     Q_INVOKABLE void wr_sendTimeCalibrationType(int            typeID,
                   char         value  );
 
-
-
+    //时间同步（对时）读取/设置：0x01000481
+    Q_INVOKABLE void wr_sendTimeOperate(int typeID,QString time);
 
     /**
      * @brief wr_sendWRParamTransient
