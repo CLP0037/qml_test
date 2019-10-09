@@ -5,6 +5,7 @@
 
 #define CHANNELNUM_ANALOG 18 //模拟量通道数
 #define CHANNELNUM_SWITCH 16 //开关量通道数
+#define GROUPNUM_MAX 4 //最大总组数
 
 #define g_C2Q(str) QString::fromLocal8Bit(str)
 
@@ -165,13 +166,13 @@ public:
     GENERAL_DATA_STUCT generalParamChannelInfo[CHANNELNUM_ANALOG];
     GENERAL_DATA_STUCT generalWRParamTransient;
     GENERAL_DATA_STUCT generalWRParamSteady;
-    GENERAL_DATA_STUCT generalWRParamSwitch;
-    GENERAL_DATA_STUCT generalWRParamAnalog[CHANNELNUM_ANALOG];
+    GENERAL_DATA_STUCT generalWRParamSwitch[CHANNELNUM_SWITCH+1];//公共信息+通道信息
+    GENERAL_DATA_STUCT generalWRParamAnalog[CHANNELNUM_ANALOG+1];//公共信息+通道信息
     GENERAL_DATA_STUCT generalWRParamComponent;
     GENERAL_DATA_STUCT generalWRParamPulseIn;
     GENERAL_DATA_STUCT generalWRParamPulseOut;
     GENERAL_DATA_STUCT generalWRParamCalibration[CHANNELNUM_ANALOG];
-
+    GENERAL_DATA_STUCT generalWRCommandCalibration[CHANNELNUM_ANALOG];
 
     GENERAL_DATA_STUCT generalMeterValue;//标准表传输数据
 
@@ -235,40 +236,82 @@ public:
         unsigned int sampleTimeC;
         unsigned int sampleMaxTime;
     }WR_PARAM_TRANSIENT;
-    WR_PARAM_TRANSIENT sWRParamTransient;
+    //WR_PARAM_TRANSIENT sWRParamTransient;
 
     //稳态录波参数
     typedef struct{
         unsigned int sampleFrequency;
         unsigned int sampleMaxTime;
     }WR_PARAM_STEADY;
-    WR_PARAM_STEADY sWRParamSteady;
+    //WR_PARAM_STEADY sWRParamSteady;
 
     //开关量触发
     typedef struct{
-        char isSelect;
-        char trigerType;
+        char isSelect;//是否选择
+        char isComtrade;//是否录波
+        char trigerType;//触发极性（字节型，0-上升沿 1-下降沿）
+        QString name;//开关量名称
     }WR_TRIGER_SWITCH;
 
     typedef struct{
         WR_TRIGER_SWITCH switchTrigerInfo[CHANNELNUM_SWITCH];
-        char switchLogic;
-        char switchMode;
-        unsigned short delay;
+        char switchLogic;//开关通道触发逻辑关系（字节型，0-与 1-或）
+        char switchMode;//触发模式（字节型，0-正常触发 1-单次触发 2-延时触发）
+        unsigned short delay;//延时时间（无符号整形，单位-毫秒）
     }WR_PARAM_TRIGER_SWITCH;
-    WR_PARAM_TRIGER_SWITCH sWRParamSwitch;
+    //WR_PARAM_TRIGER_SWITCH sWRParamSwitch;
 
     //模拟量触发
     typedef struct{
+        char isSelect;//是否选择
+        char isComtrade;//是否录波
+        char isSelect_UP;//越上限是否选择
+        float value_UP;//越上限定值
+        char isSelect_Down;//越下限是否选择
+        float value_Down;//越下限定值
+        char isSelect_Mutation;//突变量是否选择
+        char type_Mutation;//突变量极性（0-正常 1-上升沿 2-下降沿）
+        float value_Mutation;//突变量定值
+        char isSelect_Harmonic2;//2次谐波是否选择
+        float value_Harmonic2;//2次谐波定值
+        char isSelect_Harmonic3;//3次谐波是否选择
+        float value_Harmonic3;//3次谐波定值
+        char isSelect_Harmonic5;//5次谐波是否选择
+        float value_Harmonic5;//5次谐波定值
+        char isSelect_Harmonic7;//7次谐波是否选择
+        float value_Harmonic7;//7次谐波定值
+    }WR_TRIGER_ANALOG;
 
+    typedef struct{
+        WR_TRIGER_ANALOG analogTrigerInfo[CHANNELNUM_ANALOG];
+        char switchMode;//触发模式（字节型，0-正常触发 1-单次触发 2-延时触发）
     }WR_PARAM_TRIGER_ANALOG;
-    WR_PARAM_TRIGER_ANALOG sWRParamAnalog[CHANNELNUM_ANALOG];
+    //WR_PARAM_TRIGER_ANALOG sWRParamAnalog[CHANNELNUM_ANALOG];
 
     //分组/序分量设置
     typedef struct{
+        char isSelect_UP_P;//正序上限是否选择
+        float value_UP_P;//越上限定值
+        char isSelect_Down_P;//正序下限是否选择
+        float value_Down_P;//越下限定值
+        char isSelect_Mutation_P;//正序突变量是否选择
+        float value_Mutation_P;//正序突变量定值
+        char isSelect_UP_N;//负序上限是否选择
+        float value_UP_N;//越上限定值
+        char isSelect_Mutation_N;//负序突变量是否选择
+        float value_Mutation_N;//负序突变量定值
+        char isSelect_UP_Z;//零序上限是否选择
+        float value_UP_Z;//越上限定值
+        char isSelect_Mutation_Z;//零序突变量是否选择
+        float value_Mutation_Z;//零序突变量定值
+    }WR_COMPONENT;
 
+    typedef struct{
+        WR_COMPONENT componentInfo[GROUPNUM_MAX];
+        char groupTotalnum;
+        char groupSEQnum;
     }WR_PARAM_COMPONENT;
-    WR_PARAM_COMPONENT sWRParamComponent;
+    //WR_PARAM_COMPONENT sWRParamComponent;
 
     //===============================================
     //电能检定相关参数
@@ -281,13 +324,13 @@ public:
         char meterType;
         unsigned int pulseConstant;
     }PM_PARAM_PowerMeter_IN;
-    PM_PARAM_PowerMeter_IN sWRParamPulseIn;
+    //PM_PARAM_PowerMeter_IN sWRParamPulseIn;
     //电能输出脉冲参数下载下载/读取
     typedef  struct{
         char mode;
         unsigned int pulseConstant;
     }PM_PARAM_PowerMeter_OUT;
-    PM_PARAM_PowerMeter_OUT sWRParamPulseOut;
+    //PM_PARAM_PowerMeter_OUT sWRParamPulseOut;
 
     //===============================================
     //校准相关参数
@@ -295,7 +338,14 @@ public:
         float amplitude;
         float phase;
     }CA_PARAM_Calibration;
-    CA_PARAM_Calibration sWRParamCalibration[CHANNELNUM_ANALOG];
+    //CA_PARAM_Calibration sWRParamCalibration[CHANNELNUM_ANALOG];
+
+    //校准命令
+    typedef  struct{
+        float amplitude;
+        float phase;
+    }CA_COMMAND_Calibration;
+
 
     //===============================================
     //波形实时数据传输

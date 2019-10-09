@@ -73,7 +73,7 @@ Window {
         Button{
            text: qsTr("启动监听")
            onClicked: {
-               dev_wr.startServer(4001)
+               dev_wr.startServer(4002)
            }
         }
         Button{
@@ -83,13 +83,13 @@ Window {
            }
         }
         Button{
-           text: qsTr("客户端1发送")
+           text: qsTr("录波完成路径回复")//客户端1发送
            onClicked: {
                dev_wr.serverSendbuf_filepath(0,"C:/waveFile/test.cfg")
            }
         }
         Button{
-           text: qsTr("客户端2发送")
+           text: qsTr("标准表读取回复")
            onClicked: {
                //dev_wr.stopServer()
            }

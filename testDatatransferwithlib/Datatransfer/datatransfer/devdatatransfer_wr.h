@@ -22,22 +22,26 @@ class DevDataTransfer_wr : public QObject
 
 public:
     explicit DevDataTransfer_wr(QObject *parent = nullptr);
-
+    //======================================= 客户端连接 ==========================================//
     Q_INVOKABLE void clientConnect();
     Q_INVOKABLE void clientDisConnect();
-    Q_INVOKABLE void test();
-
-    Q_INVOKABLE void startServer(int port);
-    Q_INVOKABLE void stopServer();
-    Q_INVOKABLE void serverSendbuf_filepath(int index,QString filepath);//sendbufToClient
-    Q_INVOKABLE void serverSendbuf_meter(int index);
-
+    Q_INVOKABLE void test();   
 //    Q_INVOKABLE int wr_connect(QString hostname, int tcpPort);
-
 //    Q_INVOKABLE void wr_devdisconnect(QString hostname, int tcpPort);
 
+    //======================================= 服务端连接 ==========================================//
+    Q_INVOKABLE void startServer(int port);
+    Q_INVOKABLE void stopServer();
 
-    //Q_INVOKABLE
+
+    //======================================= 与中间键通讯交互 ==========================================//
+
+    Q_INVOKABLE void serverSendbuf_filepath(int index,QString filepath);//sendbufToClient
+    Q_INVOKABLE void serverSendbuf_meter(int index);//标准表读取回复
+
+
+    //======================================= 与下位机通讯交互 ==========================================//
+
     /**
      * @brief wr_sendParamCommunicate 通讯参数
      * @param typeID     功能码： 下载-1；读取-2
@@ -76,115 +80,124 @@ public:
      * @param typeID 功能码： 下载-1；读取-2
      */
     Q_INVOKABLE void wr_sendParamChannelInfo(int            typeID);
+    QString unicodeToCn(QString Str);
 
-//    /**
-//     * @brief wr_sendMaxSampleRate  最高采样率
-//     * @param typeID 功能码： 下载-1；读取-2
-//     * @param value 最高采样率
-//     */
-//    Q_INVOKABLE void wr_sendMaxSampleRate(int            typeID,
-//                             unsigned int value);
+    /**
+     * @brief wr_sendMaxSampleRate  最高采样率
+     * @param typeID 功能码： 下载-1；读取-2
+     * @param value 最高采样率(单位kHz)
+     */
+    Q_INVOKABLE void wr_sendMaxSampleRate(int            typeID,
+                             unsigned int value);
 
-//    /**
-//     * @brief wr_send    校时方式
-//     * @param typeID 功能码： 下载-1；读取-2
-//     * @param value 校时方式  0-GPS,1-SNTP,2-B码
-//     */
-//    Q_INVOKABLE void wr_sendTimeCalibrationType(int            typeID,
-//                  char         value  );
-
-
+    /**
+     * @brief wr_send    校时方式
+     * @param typeID 功能码： 下载-1；读取-2
+     * @param value 校时方式  0-GPS,1-SNTP,2-B码
+     */
+    Q_INVOKABLE void wr_sendTimeCalibrationType(int            typeID,
+                  char         value  );
 
 
-//    /**
-//     * @brief wr_sendWRParamTransient
-//     * @param typeID
-//     * @param sampleFrequencyA
-//     * @param sampleTimeA
-//     * @param sampleFrequencyB
-//     * @param sampleTimeB
-//     * @param sampleFrequencyC
-//     * @param sampleTimeC
-//     * @param sampleMaxTime
-//     */
-//    Q_INVOKABLE void wr_sendWRParamTransient(int            typeID,
-//                                 unsigned int sampleFrequencyA,
-//                                 unsigned int sampleTimeA,
-//                                 unsigned int sampleFrequencyB,
-//                                 unsigned int sampleTimeB,
-//                                 unsigned int sampleFrequencyC,
-//                                 unsigned int sampleTimeC,
-//                                 unsigned int sampleMaxTime);
 
-//    /**
-//     * @brief wr_sendWRParamSteady
-//     * @param typeID
-//     * @param sampleFrequency
-//     * @param sampleMaxTime
-//     */
-//    Q_INVOKABLE void wr_sendWRParamSteady(int            typeID,
-//                              unsigned int sampleFrequency,
-//                              unsigned int sampleMaxTime);
 
-//    /**
-//     * @brief wr_sendWRParamSwitch
-//     * @param typeID
-//     */
-//    Q_INVOKABLE void wr_sendWRParamSwitch(int            typeID//,
-//                              );
+    /**
+     * @brief wr_sendWRParamTransient
+     * @param typeID
+     * @param sampleFrequencyA
+     * @param sampleTimeA
+     * @param sampleFrequencyB
+     * @param sampleTimeB
+     * @param sampleFrequencyC
+     * @param sampleTimeC
+     * @param sampleMaxTime
+     */
+    Q_INVOKABLE void wr_sendWRParamTransient(int            typeID);/*,
+                                 unsigned int sampleFrequencyA,
+                                 unsigned int sampleTimeA,
+                                 unsigned int sampleFrequencyB,
+                                 unsigned int sampleTimeB,
+                                 unsigned int sampleFrequencyC,
+                                 unsigned int sampleTimeC,
+                                 unsigned int sampleMaxTime);*/
 
-//    /**
-//     * @brief wr_sendWRParamAnalog
-//     * @param typeID
-//     */
-//    Q_INVOKABLE void wr_sendWRParamAnalog(int            typeID//,
-//                              );
+    /**
+     * @brief wr_sendWRParamSteady
+     * @param typeID
+     * @param sampleFrequency
+     * @param sampleMaxTime
+     */
+    Q_INVOKABLE void wr_sendWRParamSteady(int            typeID);/*,
+                              unsigned int sampleFrequency,
+                              unsigned int sampleMaxTime);*/
 
-//    /**
-//     * @brief wr_sendWRParamComponent
-//     * @param typeID
-//     */
-//    Q_INVOKABLE void wr_sendWRParamComponent(int            typeID//,
-//                                 );
+    /**
+     * @brief wr_sendWRParamSwitch
+     * @param typeID
+     */
+    Q_INVOKABLE void wr_sendWRParamSwitch(int            typeID);
 
-//    /**
-//     * @brief wr_sendWROperate  手动启动/停止录波
-//     * @param value 启动/停止录波（字节型 1-启动录波 0-停止录波）
-//     */
-//    Q_INVOKABLE void wr_sendWROperate(char value);
+    /**
+     * @brief wr_sendWRParamAnalog
+     * @param typeID
+     */
+    Q_INVOKABLE void wr_sendWRParamAnalog(int            typeID);
 
-//    /**
-//     * @brief wr_sendWRPowerMeterOperate 电能表检定启动/停止下发
-//     * @param value 启动/停止检定（字节型 1-启动检定 0-停止检定）
-//     */
-//    Q_INVOKABLE void wr_sendPowerMeterOperate(char value);
+    /**
+     * @brief wr_sendWRParamComponent
+     * @param typeID
+     */
+    Q_INVOKABLE void wr_sendWRParamComponent(int            typeID);
 
-//    /**
-//     * @brief wr_sendPowerMeterParamPulseIn  电能检定输入脉冲参数下载/读取
-//     * @param typeID
-//     * @param meterConstant 输入脉冲表常数(无符号整型)、
-//     * @param checkLaps 校验圈数(无符号整型)、
-//     * @param meterType 表类型(字节型0-PT4 1-QT4 2-P32 3-Q32 4-Q90 5-Q60 6-Q33)、
-//     * @param pulseConstant 脉冲常数(无符号整型)
-//     */
-//    Q_INVOKABLE void wr_sendPowerMeterParamPulseIn(int            typeID,
-//            unsigned int meterConstant,
-//            unsigned int checkLaps,
-//            char meterType,
-//            unsigned int pulseConstant);
+    /**
+     * @brief wr_sendWROperate  手动启动/停止录波
+     * @param value 启动/停止录波（字节型 1-启动录波 0-停止录波）
+     */
+    Q_INVOKABLE void wr_sendWROperate(char value);
 
-//    /**
-//     * @brief wr_sendPowerMeterParamPulseOut  电能输出脉冲参数下载下载/读取
-//     * @param typeID
-//     * @param mode 模式（字节型，1-自动 0-非自动）
-//     * @param pulseConstant 脉冲常数（无符号整型，模式为0时设置生效）
-//     */
-//    Q_INVOKABLE void wr_sendPowerMeterParamPulseOut(int            typeID,
-//            char mode,
-//            unsigned int pulseConstant);
+    /**
+     * @brief wr_sendWRPowerMeterOperate 电能表检定启动/停止下发
+     * @param value 启动/停止检定（字节型 1-启动检定 0-停止检定）
+     */
+    Q_INVOKABLE void wr_sendPowerMeterOperate(char value);
 
-//    void wr_sendCalibrationParam();
-//    void wr_sendCalibrationOperate();
+    /**
+     * @brief wr_sendPowerMeterParamPulseIn  电能检定输入脉冲参数下载/读取
+     * @param typeID
+     * @param meterConstant 输入脉冲表常数(无符号整型)、
+     * @param checkLaps 校验圈数(无符号整型)、
+     * @param meterType 表类型(字节型0-PT4 1-QT4 2-P32 3-Q32 4-Q90 5-Q60 6-Q33)、
+     * @param pulseConstant 脉冲常数(无符号整型)
+     */
+    Q_INVOKABLE void wr_sendPowerMeterParamPulseIn(int            typeID);/*,
+            unsigned int meterConstant,
+            unsigned int checkLaps,
+            char meterType,
+            unsigned int pulseConstant);*/
+
+    /**
+     * @brief wr_sendPowerMeterParamPulseOut  电能输出脉冲参数下载下载/读取
+     * @param typeID
+     * @param mode 模式（字节型，1-自动 0-非自动）
+     * @param pulseConstant 脉冲常数（无符号整型，模式为0时设置生效）
+     */
+    Q_INVOKABLE void wr_sendPowerMeterParamPulseOut(int            typeID);/*,
+            char mode,
+            unsigned int pulseConstant);*/
+
+    //校准参数
+    Q_INVOKABLE void wr_sendCalibrationParam(int typeID,int currentIndex);
+    //校准命令
+    Q_INVOKABLE void wr_sendCalibrationOperate(int typeID,int currentIndex);
+
+    /**
+     * @brief wr_sendRealDataTransfer 实时传输启动/停止下发
+     * @param value 启动/停止检定（字节型 1-启动 0-停止）
+     */
+    Q_INVOKABLE void wr_sendRealDataTransfer(char value);
+
+    //标准表实时测量数据召测
+    Q_INVOKABLE void wr_sendMeterRealDataCall();
 
 signals:
 

@@ -98,12 +98,12 @@ void TestData::setParamDevInfo()
     tempData.length = 64;
     pubData.generalParamDevInfo.dataList.append(tempData);
 
-    tempData.value = sParamDevInfo.comtradeVersion;
+    tempData.value = QString::number(sParamDevInfo.comtradeVersion);
     tempData.type = pubData.Type_byte;
     tempData.length = 1;
     pubData.generalParamDevInfo.dataList.append(tempData);
 
-    tempData.value = sParamDevInfo.comtradeType;
+    tempData.value = QString::number(sParamDevInfo.comtradeType);
     tempData.type = pubData.Type_byte;
     tempData.length = 1;
     pubData.generalParamDevInfo.dataList.append(tempData);
@@ -147,23 +147,23 @@ void TestData::setParamChannelInfo()
         tempData.length = 64;
         pubData.generalParamChannelInfo[i].dataList.append(tempData);
 
-        tempData.value = sParamChannelInfo[i].property;
+        tempData.value = QString::number(sParamChannelInfo[i].property);
         tempData.type = pubData.Type_byte;
         tempData.length = pubData.getLenfromType(tempData.type);
         pubData.generalParamChannelInfo[i].dataList.append(tempData);
 
-        tempData.value = sParamChannelInfo[i].phase;
-        tempData.type = pubData.Type_byte;
+        tempData.value = QString::number(sParamChannelInfo[i].phase);
+        tempData.type = pubData.Type_sbyte;
         tempData.length = pubData.getLenfromType(tempData.type);
         pubData.generalParamChannelInfo[i].dataList.append(tempData);
 
-        tempData.value = sParamChannelInfo[i].lineNum;
-        tempData.type = pubData.Type_byte;
+        tempData.value = QString::number(sParamChannelInfo[i].lineNum);
+        tempData.type = pubData.Type_sbyte;
         tempData.length = pubData.getLenfromType(tempData.type);
         pubData.generalParamChannelInfo[i].dataList.append(tempData);
 
-        tempData.value = sParamChannelInfo[i].groupNum;
-        tempData.type = pubData.Type_byte;
+        tempData.value = QString::number(sParamChannelInfo[i].groupNum);
+        tempData.type = pubData.Type_sbyte;
         tempData.length = pubData.getLenfromType(tempData.type);
         pubData.generalParamChannelInfo[i].dataList.append(tempData);
 
