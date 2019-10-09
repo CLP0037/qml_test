@@ -77,5 +77,19 @@ Window {
         id:dev_wr
     }
 
+    //命令发送====qml中集中在main.qml中，以便各个子页面调用
+    function send_()
+    {
+
+    }
+
+
+
+
+
+
+
+
+
 
 }
