@@ -10,7 +10,7 @@ class WRClientStuff : public QObject
 {
     Q_OBJECT
 public:
-    explicit WRClientStuff(const QString hostAddress, int port, QObject *parent =  nullptr);
+    explicit WRClientStuff(/*const QString hostAddress, int port, */QObject *parent =  nullptr);
 
     QTcpSocket *tcpSocket;
     bool getStatus();
@@ -23,15 +23,15 @@ signals:
 
 public slots:
     void closeConnection();
-    void connect2host(int timeout);
+    void connect2host(int timeout,QString host,int port);
 
 private slots:
     void readyRead();
 
 
 private:
-    QString mHost;
-    int mPort;
+//    QString mHost;
+//    int mPort;
     bool mStatus;
 
 };

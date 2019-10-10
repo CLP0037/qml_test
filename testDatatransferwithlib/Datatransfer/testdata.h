@@ -26,6 +26,8 @@ public:
     void setWRParamSteady();
     //开关量触发配置
     void setWRParamSwitch();
+    //模拟量触发
+    void setWRParamAnalog();
     //分组/序分量配置
     void setWRParamComponent();
     //

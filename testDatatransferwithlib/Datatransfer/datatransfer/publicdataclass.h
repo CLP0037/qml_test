@@ -168,12 +168,16 @@ public:
     GENERAL_DATA_STUCT generalWRParamSteady;
     GENERAL_DATA_STUCT generalWRParamSwitch[CHANNELNUM_SWITCH+1];//公共信息+通道信息
     GENERAL_DATA_STUCT generalWRParamAnalog[CHANNELNUM_ANALOG+1];//公共信息+通道信息
-    GENERAL_DATA_STUCT generalWRParamComponent;
+    GENERAL_DATA_STUCT generalWRParamComponent[CHANNELNUM_ANALOG+1];//公共信息+通道信息
+    //GENERAL_DATA_STUCT generalWRParamComponent;
     GENERAL_DATA_STUCT generalWRParamPulseIn;
     GENERAL_DATA_STUCT generalWRParamPulseOut;
     GENERAL_DATA_STUCT generalWRParamCalibration[CHANNELNUM_ANALOG];
     GENERAL_DATA_STUCT generalWRCommandCalibration[CHANNELNUM_ANALOG];
 
+    GENERAL_DATA_STUCT generalWRComtradeData;
+
+    GENERAL_DATA_STUCT generalEnergyValue;//电能量数据
     GENERAL_DATA_STUCT generalMeterValue;//标准表传输数据
 
     //===============================================
@@ -290,6 +294,7 @@ public:
 
     //分组/序分量设置
     typedef struct{
+        char groupSEQnum;//组序号（1/2/3/4）
         char isSelect_UP_P;//正序上限是否选择
         float value_UP_P;//越上限定值
         char isSelect_Down_P;//正序下限是否选择
@@ -309,7 +314,7 @@ public:
     typedef struct{
         WR_COMPONENT componentInfo[GROUPNUM_MAX];
         char groupTotalnum;
-        char groupSEQnum;
+
     }WR_PARAM_COMPONENT;
     //WR_PARAM_COMPONENT sWRParamComponent;
 
@@ -373,8 +378,8 @@ public:
     }CALL_ErnergyValue;
 
     //标准表实时测量数据召测  标准表实时采集的电压电流功率等值以及谐波采集值
-    //1路电压参数
-    typedef  struct{
+
+    typedef  struct{//1路中电压相关参数
         float UA;
         float UB;
         float UC;
@@ -396,8 +401,8 @@ public:
         float UCB_Angle;
         float UAC_Angle;
     }UrelatedValue_oneroad;
-    //1路电流参数
-    typedef  struct{
+
+    typedef  struct{//1路中电流相关参数
         float IA;
         float IB;
         float IC;
@@ -413,12 +418,51 @@ public:
         float _3I0_Angle;
         float _3I0_Cal_Angle;
     }IrelatedValue_oneroad;
-    //1组电压电流参数
+
+    typedef  struct{//1路电压电流组合相关参数
+        float PA;
+        float PB;
+        float PC;
+        float QA;
+        float QB;
+        float QC;
+        float PZ;
+        float QZ;
+        float COSA;
+        float COSB;
+        float COSC;
+        float COS;
+        float SINA;
+        float SINB;
+        float SINC;
+        float SIN;
+    }UIrelatedValue_oneroad;
+
+    typedef  struct{//1路直流量相关参数
+        float DC;//直流分量幅值
+        float FREQ;//直流分量频率
+    }DCrelatedValue_oneroad;
+
+    //harmonic
+    typedef  struct{//1个通道谐波相关参数
+        float harmonicContent[32];
+    }HrelatedValue_onechannel;
+
+    //energy
+    typedef  struct{//1路电能量相关参数
+        float ENEERGY_P;
+        float ENEERGY_Q;
+    }ErelatedValue_oneroad;
+
     typedef  struct{
 
-    }UIrelatedValue_onegroup;
 
-    typedef  struct{
+
+
+
+
+
+        float NUMBER;//当前脉冲圈数NUMBER
 
     }CALL_StandardMeter_analog;
 

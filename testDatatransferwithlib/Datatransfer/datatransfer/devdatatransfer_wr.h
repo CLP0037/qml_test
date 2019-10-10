@@ -23,7 +23,7 @@ class DevDataTransfer_wr : public QObject
 public:
     explicit DevDataTransfer_wr(QObject *parent = nullptr);
     //======================================= 客户端连接 ==========================================//
-    Q_INVOKABLE void clientConnect();
+    Q_INVOKABLE void clientConnect(QString host,int port);
     Q_INVOKABLE void clientDisConnect();
     Q_INVOKABLE void test();   
 //    Q_INVOKABLE int wr_connect(QString hostname, int tcpPort);
@@ -41,6 +41,8 @@ public:
 
 
     //======================================= 与下位机通讯交互 ==========================================//
+
+    void encodefromXMLData(CustomProtocol::_XmlDataStruct tempXmlData);
 
     /**
      * @brief wr_sendParamCommunicate 通讯参数

@@ -1,13 +1,13 @@
 ﻿#include "wrclientstuff.h"
 
-WRClientStuff::WRClientStuff(const QString hostAddress,
-                             int port,
+WRClientStuff::WRClientStuff(/*const QString hostAddress,
+                             int port,*/
                              QObject *parent
                              ) : QObject(parent)
 {
     mStatus = false;
-    mHost = hostAddress;
-    mPort = port;
+//    mHost = hostAddress;
+//    mPort = port;
 
     tcpSocket = new QTcpSocket(this);
     connect(tcpSocket, &QTcpSocket::disconnected, this, &WRClientStuff::closeConnection);
@@ -56,9 +56,9 @@ void WRClientStuff::closeConnection()
     }
 }
 
-void WRClientStuff::connect2host(int timeout)
+void WRClientStuff::connect2host(int timeout,QString host,int port)
 {
-    tcpSocket->connectToHost(mHost, mPort);
+    tcpSocket->connectToHost(host,port);//mHost, mPort
     QTime tm;
     tm.start();
     if(!tcpSocket->waitForConnected(timeout))//10000
