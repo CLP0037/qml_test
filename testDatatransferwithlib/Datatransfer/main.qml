@@ -22,7 +22,7 @@ Window {
             }
             TextField{
                id:txt_ip
-               text:"127.0.0.1"
+               text:"192.168.4.30"  // "127.0.0.1"
             }
             Label{
                 text: qsTr("Port：")

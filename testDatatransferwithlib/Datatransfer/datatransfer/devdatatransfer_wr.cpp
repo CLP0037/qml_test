@@ -1157,64 +1157,211 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
 
 
                             }break;
-                            case 0x02://
+                            case 0x02://最高采样率数值
                             {
+                                //信息体地址：
+                                temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                                temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) ;//行偏移量(低位)
+                                qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+                                temp_row.Param.clear();
+                                rtnXmlData.ParamList.clear();
+                                temp_column.value = "";
+                                temp_column.type = pubData.Type_ushort;
+                                temp_column.length = pubData.getLenfromType(temp_column.type);
+                                temp_row.Param.append(temp_column);
+
+                                rtnXmlData.ParamList.append(temp_row);
 
                             }break;
-                            case 0x03://
+                            case 0x03://校时方式值
                             {
+                                //信息体地址：
+                                temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                                temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) ;//行偏移量(低位)
+                                qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+                                temp_row.Param.clear();
+                                rtnXmlData.ParamList.clear();
+                                temp_column.value = "";
+                                temp_column.type = pubData.Type_sbyte;
+                                temp_column.length = pubData.getLenfromType(temp_column.type);;
+                                temp_row.Param.append(temp_column);
 
+                                rtnXmlData.ParamList.append(temp_row);
                             }break;
                         }
                     }break;
                     case 0x82://录波参数
+
+                        //信息体地址：
+                        temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                        temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) ;//行偏移量(低位)
+                        qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+
                         switch(pbuf[24])
                         {
-                        case 0x00://
+                        case 0x00://暂态录波基本配置
                         {
+                            temp_row.Param.clear();
+                            rtnXmlData.ParamList.clear();
+                            for(int i=0;i<pubData.generalWRParamTransient.dataNum;i++)
+                            {
+
+                                temp_column.value = "";
+                                temp_column.type = pubData.generalWRParamTransient.dataList[i].type;
+                                temp_column.length = pubData.generalWRParamTransient.dataList[i].length;
+                                temp_row.Param.append(temp_column);
+                            }
+
+                            rtnXmlData.ParamList.append(temp_row);
 
                         }break;
-                        case 0x01://
+                        case 0x01://稳态录波基本配置
                         {
+                            temp_row.Param.clear();
+
+                            rtnXmlData.ParamList.clear();
+                            for(int i=0;i<pubData.generalWRParamSteady.dataNum;i++)
+                            {
+
+                                temp_column.value = "";
+                                temp_column.type = pubData.generalWRParamSteady.dataList[i].type;
+                                temp_column.length = pubData.generalWRParamSteady.dataList[i].length;
+                                temp_row.Param.append(temp_column);
+                            }
+
+                            rtnXmlData.ParamList.append(temp_row);
 
                         }break;
-                        case 0x02://
+                        case 0x02://开关量触发
                         {
+                            rtnXmlData.ParamList.clear();
+                            for(int i=0;i<CHANNELNUM_SWITCH+1;i++)
+                            {
+                                //信息体地址：
+                                temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                                temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) + i;//行偏移量(低位)
+                                qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+
+                                temp_row.Param.clear();
+                                for(int j=0;j<pubData.generalWRParamSwitch[i].dataNum;j++)
+                                {
+
+                                    temp_column.value = "";
+                                    temp_column.type = pubData.generalWRParamSwitch[i].dataList[j].type;
+                                    temp_column.length = pubData.generalWRParamSwitch[i].dataList[j].length;
+                                    temp_row.Param.append(temp_column);
+                                }
+                                rtnXmlData.ParamList.append(temp_row);
+                            }
 
                         }break;
-                        case 0x03://
+                        case 0x03://模拟量触发
                         {
+                            rtnXmlData.ParamList.clear();
+                            for(int i=0;i<CHANNELNUM_ANALOG+1;i++)
+                            {
+                                //信息体地址：
+                                temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                                temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) + i;//行偏移量(低位)
+                                qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+
+                                temp_row.Param.clear();
+                                for(int j=0;j<pubData.generalWRParamAnalog[i].dataNum;j++)
+                                {
+
+                                    temp_column.value = "";
+                                    temp_column.type = pubData.generalWRParamAnalog[i].dataList[j].type;
+                                    temp_column.length = pubData.generalWRParamAnalog[i].dataList[j].length;
+                                    temp_row.Param.append(temp_column);
+                                }
+                                rtnXmlData.ParamList.append(temp_row);
+                            }
 
                         }break;
-                        case 0x04://
+                        case 0x04://分组/序分量
                         {
+                            rtnXmlData.ParamList.clear();
+
+                            int nums = pubData.generalWRParamComponent[0].dataList[0].value.toInt()+1;
+                            for(int i=0;i<nums;i++)
+                            {
+                                //信息体地址：
+                                temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                                temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) + i;//行偏移量(低位)
+                                qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+
+                                temp_row.Param.clear();
+                                for(int j=0;j<pubData.generalWRParamComponent[i].dataNum;j++)
+                                {
+
+                                    temp_column.value = "";
+                                    temp_column.type = pubData.generalWRParamComponent[i].dataList[j].type;
+                                    temp_column.length = pubData.generalWRParamComponent[i].dataList[j].length;
+                                    temp_row.Param.append(temp_column);
+                                }
+                                rtnXmlData.ParamList.append(temp_row);
+                            }
 
                         }break;
-                        case 0x05://
+                        case 0x05://手动录波启动/停止设置确认（是否有肯定确认和否定确认？？？）
                         {
 
                         }break;
                         }
                     break;
                     case 0x83://电能量
+
+                    //信息体地址：
+                    temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                    temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) ;//行偏移量(低位)
+                    qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+
+
                         switch(pbuf[24])
                         {
-                        case 0x00://
+                        case 0x00://电能表检定启动/停止设置确认
                         {
 
                         }break;
-                        case 0x01://
+                        case 0x01://电能检定输入脉冲参数
                         {
+                            temp_row.Param.clear();
+
+                            rtnXmlData.ParamList.clear();
+                            for(int i=0;i<pubData.generalWRParamPulseIn.dataNum;i++)
+                            {
+
+                                temp_column.value = "";
+                                temp_column.type = pubData.generalWRParamPulseIn.dataList[i].type;
+                                temp_column.length = pubData.generalWRParamPulseIn.dataList[i].length;
+                                temp_row.Param.append(temp_column);
+                            }
+
+                            rtnXmlData.ParamList.append(temp_row);
 
                         }break;
-                        case 0x02://
+                        case 0x02://电能输出脉冲参数
                         {
+                            temp_row.Param.clear();
+
+                            rtnXmlData.ParamList.clear();
+                            for(int i=0;i<pubData.generalWRParamPulseOut.dataNum;i++)
+                            {
+
+                                temp_column.value = "";
+                                temp_column.type = pubData.generalWRParamPulseOut.dataList[i].type;
+                                temp_column.length = pubData.generalWRParamPulseOut.dataList[i].length;
+                                temp_row.Param.append(temp_column);
+                            }
+
+                            rtnXmlData.ParamList.append(temp_row);
 
                         }break;
 
                         }
                     break;
                     case 0x84://校准
+
                         switch(pbuf[24])
                         {
                         case 0x00://
@@ -1229,9 +1376,10 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                         }
                     break;
                     case 0x85://录波
+
                         switch(pbuf[24])
                         {
-                        case 0x00://实时传输启动/停止设置
+                        case 0x00://实时传输启动/停止设置确认
                         {
 
                         }break;
@@ -1336,9 +1484,9 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                                <<";RowOffset:"<<rtnXmlData.ParamList[i].RowOffset;
                         for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
                         {
-                            //XmlData.ParamList[i].Param[j].value = "";//QObject::
-                            qDebug()<<"rtnXmlData.ParamList[i].Param[j].value"<<rtnXmlData.ParamList[i].Param[j].value//.toUtf8()
-                                   <<"(i="<<i<<",j="<<j<<")";
+//                            //XmlData.ParamList[i].Param[j].value = "";//QObject::
+//                            qDebug()<<"rtnXmlData.ParamList[i].Param[j].value"<<rtnXmlData.ParamList[i].Param[j].value//.toUtf8()
+//                                   <<"(i="<<i<<",j="<<j<<")";
                         }
                     }
                 }
