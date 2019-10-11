@@ -158,6 +158,8 @@ void DevDataTransfer_wr::encodefromXMLData(CustomProtocol::_XmlDataStruct tempXm
 
     priProtocal.EncodeParam(tempXmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,1);
 
+    QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
+    QString timeStr = time.toString("yyyy-MM-dd hh:mm:ss:zzz dddd");
     QByteArray buf;
     buf.clear();
     QString temp_str;
@@ -167,7 +169,7 @@ void DevDataTransfer_wr::encodefromXMLData(CustomProtocol::_XmlDataStruct tempXm
         temp_str += " ";
         buf.append((unsigned char)(*(pbuf+i)));
     }
-    qDebug()<<"client send:" << temp_str<<"(len="<<len<<")";
+    qDebug()<<"client send_"<<timeStr<<":" << temp_str<<"(len="<<len<<")";
 
     wrClient->bufSend(buf);
 }
@@ -997,19 +999,23 @@ void DevDataTransfer_wr::respondStatus(bool newStatus)
 
 void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
 {
-    char* pbuf = new char[1024];
+    char* pbuf = new char[1024*2];
+    QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
+    QString timeStr = time.toString("yyyy-MM-dd hh:mm:ss:zzz dddd");
 
     QString temp_str;
     for(int i=0;i<qbaBuf.size();i++)
     {
-        temp_str += QString("%1").arg((unsigned char)(qbaBuf[i]),2,16,QLatin1Char('0'));
+        temp_str += QString("%1").arg(char(qbaBuf[i])&0xFF,2,16,QChar('0'));
         temp_str += " ";
         pbuf[i] = (unsigned char)(qbaBuf[i]);
     }
-    qDebug()<<"client recv:"  << temp_str<<"(len="<<qbaBuf.size()<<")";
+    qDebug()<<"client recv_"<<timeStr<< ":" << temp_str<<"(len="<<qbaBuf.size()<<")";
+
 
     QList<CustomProtocol::_ReturnDataStruct> returndatalist;
-    priProtocal.DecodeFrame(pbuf,qbaBuf.size(),returndatalist);
+    priProtocal.DecodeFrame(qbaBuf.data(),qbaBuf.size(),returndatalist);//pbuf
+
     qDebug()<<"returndatalist count:"<<returndatalist.count();
 
     if(returndatalist.count() > 0)
@@ -1074,7 +1080,7 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
 
 
 
-                switch((unsigned char)(pbuf[23]))
+                switch((unsigned char)(pbuf[23]))//pbuf
                 {
                     case 0x80://通讯配置
                     {
@@ -1100,9 +1106,9 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                         rtnXmlData.ParamList.clear();
                         rtnXmlData.ParamList.append(temp_row);
                     }break;
-                    case 0x81://系统配置
+                    case char(0x81)://系统配置
                     {
-                        switch(pbuf[24])
+                        switch((unsigned char)(pbuf[24]))//pbuf[24]
                         {
                             case 0x00://
                             {
@@ -1134,13 +1140,15 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
 
                                 for(int i=0;i<CHANNELNUM_ANALOG;i++)
                                 {
-//                                    //信息体地址：0x01000181
-//                                    temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
-//                                    temp_row.RowOffset = 0x0181;//行偏移量(低位)
-                                    //信息体地址：
+                                    //信息体地址：0x01000181
                                     temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
-                                    temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) + i;//行偏移量(低位)
-                                    qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+                                    temp_row.RowOffset = 0x0181 + i;//行偏移量(低位)
+//                                    //信息体地址：
+//                                    temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+//                                    qDebug()<< "qbaBuf[23]" << QString::number(uint(qbaBuf[23]), 16) << "qbaBuf[24]" << QString::number(uint(qbaBuf[24]), 16);
+//                                    temp_row.RowOffset = uint(qbaBuf[23])+(uint(qbaBuf[24])*256) + uint(i);//行偏移量(低位)<<8
+//                                    qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+
                                     temp_row.Param.clear();
                                     for(int j=0;j<pubData.generalParamChannelInfo[i].dataNum;j++)
                                     {
@@ -1150,7 +1158,7 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                                         temp_column.length = pubData.generalParamChannelInfo[i].dataList[j].length;
                                         temp_row.Param.append(temp_column);
 
-                                        qDebug()<<"i="<<i<<";j="<<j<<";type = "<<temp_column.type<<";length = "<<temp_column.length;
+                                        //qDebug()<<"i="<<i<<";j="<<j<<";type = "<<temp_column.type<<";length = "<<temp_column.length;
                                     }
                                     rtnXmlData.ParamList.append(temp_row);
                                 }
@@ -1197,7 +1205,7 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                         temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) ;//行偏移量(低位)
                         qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
 
-                        switch(pbuf[24])
+                        switch((unsigned char)(pbuf[24]))//pbuf[24]
                         {
                         case 0x00://暂态录波基本配置
                         {
@@ -1317,7 +1325,7 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                     qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
 
 
-                        switch(pbuf[24])
+                        switch((unsigned char)(pbuf[24]))
                         {
                         case 0x00://电能表检定启动/停止设置确认
                         {
@@ -1362,7 +1370,7 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                     break;
                     case 0x84://校准
 
-                        switch(pbuf[24])
+                        switch((unsigned char)(pbuf[24]))
                         {
                         case 0x00://
                         {
@@ -1377,7 +1385,7 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                     break;
                     case 0x85://录波
 
-                        switch(pbuf[24])
+                        switch((unsigned char)(pbuf[24]))
                         {
                         case 0x00://实时传输启动/停止设置确认
                         {
@@ -1388,27 +1396,41 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                             rtnXmlData.ParamList.clear();
 
                             //通道个数
-                            //数据点数N returndatalist[0].DataField[i]
-                            if(returndatalist[0].DataLength < 14)
+                            //数据点数N
+                            if(returnCacheData.size() < 14+4)
                             {
                                 //通用信息无法正常提取，数据域内容异常
-                                qWarning()<<"returndatalist DataLength less than 14(wave record data)";
+                                qWarning()<<"returndatalist DataLength less than 14+4(wave record data)";
                                 return;
                             }
 
-                            int num_channel = returndatalist[0].DataField[7];
-                            int num_dataN = returndatalist[0].DataField[8] + returndatalist[0].DataField[9]*256;
-                            qWarning()<<g_C2Q("录波数据上传：通道个数_")<<num_channel<<";数据点数N_"<<num_dataN;
+                            //缓存内容
+                            QString temp_str1;
+                            for(int i=0;i<14+4;i++)
+                            {
+                                temp_str1 += QString("%1").arg(char(returnCacheData[i])&0xFF,2,16,QChar('0'));
+                                temp_str1 += " ";
+
+                            }
+                            qDebug()<<"returndatalist:" << temp_str1<<"(total len="<<returnCacheData.size()<<")";
+
+
+                            int num_channel = returnCacheData[7+4]&0xff;
+                            int num_dataN = (returnCacheData[8+4]&0xff) + (returnCacheData[9+4]&0xff)*256;
+                            qWarning()<<g_C2Q("录波数据上传：通道个数_")<<num_channel<<g_C2Q(";数据点数N_")<<num_dataN;
 
                             pubData.generalWRComtradeData.dataNum = 4 + num_channel*(2+num_dataN);
                             pubData.generalWRComtradeData.dataList.clear();
 
 
 
-
-                            //信息体地址：
+                            //信息体地址：0x01000185
                             temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
-                            temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8);//行偏移量(低位)
+                            temp_row.RowOffset = 0x0185;//行偏移量(低位)
+//                            //信息体地址：
+//                            temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+//                            temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8);//行偏移量(低位)
+
                             qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
                             temp_row.Param.clear();
 
@@ -1484,9 +1506,9 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
                                <<";RowOffset:"<<rtnXmlData.ParamList[i].RowOffset;
                         for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
                         {
-//                            //XmlData.ParamList[i].Param[j].value = "";//QObject::
-//                            qDebug()<<"rtnXmlData.ParamList[i].Param[j].value"<<rtnXmlData.ParamList[i].Param[j].value//.toUtf8()
-//                                   <<"(i="<<i<<",j="<<j<<")";
+                            if(j%200 == 0)
+                                qDebug()<<"rtnXmlData.ParamList[i].Param[j].value"<<rtnXmlData.ParamList[i].Param[j].value//.toUtf8()
+                                   <<"(i="<<i<<",j="<<j<<")";
                         }
                     }
                 }
@@ -1510,6 +1532,8 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
 
     if(returndatalist[0].Txlen > 0)//有内容发送
     {
+        QDateTime time1 = QDateTime::currentDateTime();//获取系统现在的时间
+        QString timeStr1 = time1.toString("yyyy-MM-dd hh:mm:ss:zzz dddd");
         QByteArray buf;
         buf.clear();
         QString temp_str;
@@ -1519,7 +1543,7 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
             temp_str += " ";
             buf.append((unsigned char)(returndatalist[0].Tbuf[i]));
         }
-        qDebug()<<"client send(sequence):" << temp_str<<"(len="<<returndatalist[0].Txlen<<")";
+        qDebug()<<"client send(sequence)_"<<timeStr1<<":" << temp_str<<"(len="<<returndatalist[0].Txlen<<")";
 
         wrClient->bufSend(buf);
     }
@@ -1538,38 +1562,6 @@ void DevDataTransfer_wr::respondmsgRecv(QByteArray qbaBuf)
 
 
 
-
-
-
-
-//    //CustomProtocol::_XmlDataStruct rtnXmlData;
-//    for(int i=0;i<XmlData.ParamList.count();i++)
-//    {
-//        for(int j=0;j<XmlData.ParamList[i].Param.count();j++)
-//        {
-//            qDebug()<<"XmlData.ParamList[i].Param[j].value"<<XmlData.ParamList[i].Param[j].value
-//                   <<"(i="<<i<<",j="<<j<<")";
-//            XmlData.ParamList[i].Param[j].value = "";
-//        }
-//    }
-//    //SQ=1 连续
-//    priProtocal.AnalysisRevData(XmlData,1,returndatalist[0].DataField,returndatalist[0].DataLength);
-//    qDebug()<<"ParamList.count():"<<XmlData.ParamList.count();
-//    if(XmlData.ParamList.count() > 0)
-//    {
-//        qDebug()<<"RowInfoAddr:"<<XmlData.ParamList[0].RowInfoAddr;
-//        qDebug()<<"RowOffset:"<<XmlData.ParamList[0].RowOffset;
-
-//        for(int i=0;i<XmlData.ParamList.count();i++)
-//        {
-//            for(int j=0;j<XmlData.ParamList[i].Param.count();j++)
-//            {
-//                //XmlData.ParamList[i].Param[j].value = "";
-//                qDebug()<<"XmlData.ParamList[i].Param[j].value"<<XmlData.ParamList[i].Param[j].value
-//                       <<"(i="<<i<<",j="<<j<<")";
-//            }
-//        }
-//    }
 
 
 }
@@ -1610,7 +1602,10 @@ void DevDataTransfer_wr::respondclientDisconnected(QString ip , int port)
 //void respondmsgSend_server(QByteArray sendBuf);
 void DevDataTransfer_wr::respondmsgRecv_server(QString ip , int port,QByteArray qbaBuf)
 {
-    char* pbuf = new char[1024];
+    QDateTime time = QDateTime::currentDateTime();//获取系统现在的时间
+    QString timeStr = time.toString("yyyy-MM-dd hh:mm:ss:zzz dddd");
+
+    char* pbuf = new char[1024*2];
 
     QString temp_str;
     for(int i=0;i<qbaBuf.size();i++)
@@ -1619,11 +1614,11 @@ void DevDataTransfer_wr::respondmsgRecv_server(QString ip , int port,QByteArray 
         temp_str += " ";
         pbuf[i] = (unsigned char)(qbaBuf[i]);
     }
-    qDebug()<<"client recv:"  << temp_str<<"(len="<<qbaBuf.size()<<",from"<<ip<<":"<<port<<")";
+    qDebug()<<"client recv_"<<timeStr<< ":" << temp_str<<"(len="<<qbaBuf.size()<<",from"<<ip<<":"<<port<<")";
 
 
     //解析
-    QList<CustomProtocol::_ReturnDataStruct> returndatalist;//针对通讯连帧
+    QList<CustomProtocol::_ReturnDataStruct> returndatalist;//针对多帧通讯
     CustomProtocol::_XmlDataStruct rtnXmlData;
     CustomProtocol::_RowInforStruct temp_row;
     CustomProtocol::_ColumnInforStruct temp_column;

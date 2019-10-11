@@ -9,12 +9,9 @@
 
 #define g_C2Q(str) QString::fromLocal8Bit(str)
 
-#define CODEMAXLEN 512//宏定义数据域最大长度
+#define CODEMAXLEN 512*4//宏定义数据域最大长度
 class Q_DECL_EXPORT CustomProtocol
 {
-//class Q_DECL_EXPORT CustomProtocol : public QObject
-//{
-//        Q_OBJECT
 public:
     CustomProtocol();
 
@@ -116,7 +113,7 @@ public:
      * @param pbuf 返回的字节数组
      * @param len 返回字节数组长度
      * @param isover 是否最后一帧
-     * @param objecttype 设备类型1,故指，2Dtu,3.TTU，4.超级终端 5.综合测试仪
+     * @param objecttype 设备类型1,故指，2Dtu,3.TTU，4.超级终端
      * @param acttype 操作类型 1.主设备，2.从设备
      * @param masteradr 主设备地址
      * @param slaveadr 从设备地址
@@ -272,7 +269,7 @@ private:
     QList<_UpFileDataStruct> UpFileDataList;//升级文件中自定义段每段的数据集合
 
     //解帧相关变量
-    char mpBuf[1024];
+    char mpBuf[1024*2];
     uint miBufLen;
 
 //    //gbk解码

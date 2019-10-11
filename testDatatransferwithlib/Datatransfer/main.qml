@@ -22,7 +22,7 @@ Window {
             }
             TextField{
                id:txt_ip
-               text:"192.168.4.30"  // "127.0.0.1"
+               text:"192.168.4.30"  //"127.0.0.1" //
             }
             Label{
                 text: qsTr("Port：")
@@ -68,6 +68,7 @@ Window {
             ComboBox{
                 id:combo_01
                 model: [qsTr("设置"),qsTr("读取")]
+                currentIndex: 1
             }
 
             ComboBox{
