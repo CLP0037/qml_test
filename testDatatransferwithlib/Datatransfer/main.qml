@@ -50,12 +50,7 @@ Window {
 
 
 
-        Button{
-           text: qsTr("test")
-           onClicked: {
-               dev_wr.test()
-           }
-        }
+
 
         RowLayout{
             height: 50

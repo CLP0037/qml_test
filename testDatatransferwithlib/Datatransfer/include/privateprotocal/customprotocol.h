@@ -269,7 +269,7 @@ private:
     QList<_UpFileDataStruct> UpFileDataList;//升级文件中自定义段每段的数据集合
 
     //解帧相关变量
-    char mpBuf[1024*2];
+    char mpBuf[1024*3];
     uint miBufLen;
 
 //    //gbk解码
