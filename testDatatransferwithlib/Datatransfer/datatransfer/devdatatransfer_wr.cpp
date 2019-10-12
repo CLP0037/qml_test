@@ -255,7 +255,7 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
         {
             switch((unsigned char)(pbuf[23]))
             {
-                case 0x85:
+                case 0x85://通道2=====实时采样数据信号主动上传后召测
                 {
                     CustomProtocol::_XmlDataStruct tempXmlData;
                     CustomProtocol::_RowInforStruct temp_row;
@@ -272,7 +272,7 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
 
                     if(type == 2)
                     {
-                        encodefromXMLData(tempXmlData,1);
+                        encodefromXMLData(tempXmlData,2);
                     }
 
                 }break;
@@ -316,14 +316,12 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
                 CustomProtocol::_RowInforStruct temp_row;
                 CustomProtocol::_ColumnInforStruct temp_column;
 
-
-
+                //调用帧解析前帧结构传输
                 switch((unsigned char)(pbuf[23]))//pbuf
                 {
                     case 0x80://通讯配置
-                    {
+                    {//temp_row.RowName = g_C2Q("基本通讯参数");
 
-        //                temp_row.RowName = g_C2Q("基本通讯参数");
 //                        //信息体地址：0x01000080
 //                        temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
 //                        temp_row.RowOffset = 0x0080;//行偏移量(低位)
@@ -353,10 +351,10 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
 //                                //信息体地址：0x01000080
 //                                temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
 //                                temp_row.RowOffset = 0x0081;//行偏移量(低位)
-                            //信息体地址：
-                            temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
-                            temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8);//行偏移量(低位)
-                            qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+                                //信息体地址：
+                                temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                                temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8);//行偏移量(低位)
+                                qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
                                 temp_row.Param.clear();
                                 for(int i=0;i<pubData.generalParamDevInfo.dataNum;i++)
                                 {
@@ -551,23 +549,32 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
                         }break;
                         case 0x05://手动录波启动/停止设置确认（是否有肯定确认和否定确认？？？）
                         {
+                            //信息体地址：
+                            temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                            temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8);//行偏移量(低位)
+                            qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
 
+                            temp_row.Param.clear();
+
+                            rtnXmlData.ParamList.append(temp_row);
                         }break;
                         }
                     }break;
                     case 0x83://电能量
                     {
-                    //信息体地址：
-                    temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
-                    temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) ;//行偏移量(低位)
-                    qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+                        //信息体地址：
+                        temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                        temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8) ;//行偏移量(低位)
+                        qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
 
 
                         switch((unsigned char)(pbuf[24]))
                         {
                         case 0x00://电能表检定启动/停止设置确认
                         {
-
+                            temp_row.Param.clear();
+                            rtnXmlData.ParamList.clear();
+                            rtnXmlData.ParamList.append(temp_row);
                         }break;
                         case 0x01://电能检定输入脉冲参数
                         {
@@ -623,11 +630,17 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
                     }break;
                     case 0x85://录波
                     {
+                        //信息体地址：0x01000185
+                        temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+                        temp_row.RowOffset = 0x0185;//行偏移量(低位)
+
                         switch((unsigned char)(pbuf[24]))
                         {
                         case 0x00://实时传输启动/停止设置确认
                         {
-
+                            temp_row.Param.clear();
+                            rtnXmlData.ParamList.clear();
+                            rtnXmlData.ParamList.append(temp_row);
                         }break;
                         case 0x01://实时数据主动上传
                         {
@@ -662,9 +675,7 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
 
 
 
-                            //信息体地址：0x01000185
-                            temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
-                            temp_row.RowOffset = 0x0185;//行偏移量(低位)
+
 //                            //信息体地址：
 //                            temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
 //                            temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8);//行偏移量(低位)
@@ -729,27 +740,26 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
                     }break;
                 }
 
+//                //priProtocal.AnalysisRevData(rtnXmlData,1,returndatalist[0].DataField,returndatalist[0].DataLength);
+//                priProtocal.AnalysisRevData(rtnXmlData,1,returnCacheData.data(),returnCacheData.size());
+//                qDebug()<<"ParamList.count():"<<rtnXmlData.ParamList.count()<<";returnCacheData.size():"<<returnCacheData.size();
+                switch (type) {
+                    case 1:{
+                        priProtocal.AnalysisRevData(rtnXmlData,1,returnCacheData.data(),returnCacheData.size());
+                        qDebug()<<"ParamList.count():"<<rtnXmlData.ParamList.count()<<";returnCacheData.size():"<<returnCacheData.size();
+                        returnCacheData.clear();//解析完成，清空缓存
+                    }break;
+                    case 2:{
+                        priProtocal_realtime.AnalysisRevData(rtnXmlData,1,returnCacheData_realtime.data(),returnCacheData.size());
+                        qDebug()<<"ParamList.count():"<<rtnXmlData.ParamList.count()<<";returnCacheData.size():"<<returnCacheData_realtime.size();
+                        returnCacheData_realtime.clear();//解析完成，清空缓存
+                    }break;
 
-                //priProtocal.AnalysisRevData(rtnXmlData,1,returndatalist[0].DataField,returndatalist[0].DataLength);
-                priProtocal.AnalysisRevData(rtnXmlData,1,returnCacheData.data(),returnCacheData.size());
-                qDebug()<<"ParamList.count():"<<rtnXmlData.ParamList.count()<<";returnCacheData.size():"<<returnCacheData.size();
-                if(rtnXmlData.ParamList.count() > 0)
-                {
-                    qDebug()<<"rtnXmlData.ParamList.count():"<<rtnXmlData.ParamList.count();
-                    for(int i=0;i<rtnXmlData.ParamList.count();i++)
-                    {
-                        qDebug()<<"RowInfoAddr:"<<rtnXmlData.ParamList[i].RowInfoAddr
-                               <<";RowOffset:"<<rtnXmlData.ParamList[i].RowOffset;
-                        for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
-                        {
-                            if(j%200 == 0)
-                                qDebug()<<"rtnXmlData.ParamList[i].Param[j].value"<<rtnXmlData.ParamList[i].Param[j].value//.toUtf8()
-                                   <<"(i="<<i<<",j="<<j<<")";
-                        }
-                    }
                 }
 
-                returnCacheData.clear();//解析完成，清空缓存
+                //接收到的内容解析后，进行界面数据刷新
+                refreshData(rtnXmlData);
+
             }
             else
             {
@@ -785,6 +795,446 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
             }
         }
     }
+}
+
+void DevDataTransfer_wr::refreshData(CustomProtocol::_XmlDataStruct rtnXmlData)
+{
+    if(rtnXmlData.ParamList.count() > 0)
+    {
+        qDebug()<<"rtnXmlData.ParamList.count():"<<rtnXmlData.ParamList.count();
+        for(int i=0;i<rtnXmlData.ParamList.count();i++)
+        {
+            qDebug()<<"RowInfoAddr:"<<rtnXmlData.ParamList[i].RowInfoAddr
+                   <<";RowOffset:"<<rtnXmlData.ParamList[i].RowOffset;
+            for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
+            {
+                if(j%200 == 0)
+                    qDebug()<<"rtnXmlData.ParamList[i].Param[j].value"<<rtnXmlData.ParamList[i].Param[j].value//.toUtf8()
+                       <<"(i="<<i<<",j="<<j<<")";
+            }
+        }
+
+       int rowTypeID =  rtnXmlData.ParamList[0].RowTypeID;
+       //读取返回或主动上传进行刷新参数
+       int rowOffset_base =  rtnXmlData.ParamList[0].RowOffset;
+       int rowOffset_H = (rowOffset_base & 0xff)>>8;
+       int rowOffset_L = (rowOffset_base & 0xff);
+       if(rowTypeID != 2)//设置返回不需要刷新参数
+       {
+           if(rowTypeID == 100 && rowOffset_L==0x87)
+           {
+               //仅电能校验后电能量相关数据主动上传需要刷新
+               //其他刷新数据均进行召测
+           }
+           else
+               return;
+       }
+
+
+
+       switch (rowOffset_L) {
+           case 0x80://通讯配置
+           {
+               switch (rowOffset_H) {
+                   case 0:{//通讯参数
+
+                   if(rtnXmlData.ParamList[0].Param.count() != 6)
+                   {
+                       qDebug()<<g_C2Q("参数个数不匹配，理论值：6，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count();
+                       return;
+                   }
+                   pubData.generalParamCommunicate.dataNum = rtnXmlData.ParamList[0].Param.count();
+                   pubData.generalParamCommunicate.dataList.clear();
+
+                   for(int i=0;i<rtnXmlData.ParamList[0].Param.count();i++)
+                   {
+                       PublicDataClass::GENERAL_DATA tempData;
+                       //值
+                       //类型
+                       //长度
+                       tempData.value = rtnXmlData.ParamList[0].Param[i].value;
+                       tempData.type = rtnXmlData.ParamList[0].Param[i].type;
+                       tempData.length = rtnXmlData.ParamList[0].Param[i].length;
+                       pubData.generalParamCommunicate.dataList.append(tempData);
+                   }
+
+                   }break;
+
+               }
+           }break;
+           case 0x81://系统配置
+           {
+               switch (rowOffset_H) {
+                   case 0:{//设备标识
+                       if(rtnXmlData.ParamList[0].Param.count() != 6)
+                       {
+                           qDebug()<<g_C2Q("参数个数不匹配，理论值：6，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count();
+                           return;
+                       }
+                       pubData.generalParamDevInfo.dataNum = rtnXmlData.ParamList[0].Param.count();
+                       pubData.generalParamDevInfo.dataList.clear();
+
+                       for(int i=0;i<rtnXmlData.ParamList[0].Param.count();i++)
+                       {
+                           PublicDataClass::GENERAL_DATA tempData;
+                           //值
+                           //类型
+                           //长度
+                           tempData.value = rtnXmlData.ParamList[0].Param[i].value;
+                           tempData.type = rtnXmlData.ParamList[0].Param[i].type;
+                           tempData.length = rtnXmlData.ParamList[0].Param[i].length;
+                           pubData.generalParamDevInfo.dataList.append(tempData);
+                       }
+                   }break;
+                   case 1:{//采集通道
+                       if(rtnXmlData.ParamList.count() != CHANNELNUM_ANALOG)
+                       {
+                           qDebug()<<g_C2Q("参数行数不匹配，理论值：CHANNELNUM_ANALOG=18，读取返回参数个数：")<<rtnXmlData.ParamList.count();
+                           return;
+                       }
+
+                       for(int i=0;i<rtnXmlData.ParamList.count();i++)
+                       {
+                           if(rtnXmlData.ParamList[i].Param.count() != 9)
+                           {
+                               qDebug()<<g_C2Q("参数个数不匹配，理论值：9，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count()<<g_C2Q("(当前行_")<<i<<")";
+                               return;
+                           }
+                           pubData.generalParamChannelInfo[i].dataNum = 9;
+                           pubData.generalParamChannelInfo[i].dataList.clear();
+                           for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
+                           {
+                               PublicDataClass::GENERAL_DATA tempData;
+                               //值
+                               //类型
+                               //长度
+                               tempData.value = rtnXmlData.ParamList[i].Param[j].value;
+                               tempData.type = rtnXmlData.ParamList[i].Param[j].type;
+                               tempData.length = rtnXmlData.ParamList[i].Param[j].length;
+                               pubData.generalParamChannelInfo[i].dataList.append(tempData);
+                           }
+                       }
+
+
+                   }break;
+                   case 2://最高频率
+                   case 3://校时方式
+                   case 4://时间同步
+                    {
+                       if(rtnXmlData.ParamList[0].Param.count() != 1)
+                       {
+                           qDebug()<<g_C2Q("参数个数不匹配，理论值：1，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count();
+                           return;
+                       }
+
+                       PublicDataClass::GENERAL_DATA tempData;
+                       //值
+                       //类型
+                       //长度
+                       tempData.value = rtnXmlData.ParamList[0].Param[0].value;
+                       tempData.type = rtnXmlData.ParamList[0].Param[0].type;
+                       tempData.length = rtnXmlData.ParamList[0].Param[0].length;
+
+                       //====================
+
+                   }break;
+//                   case 3:{//校时方式
+
+//                   }break;
+//                   case 4:{//时间同步
+
+//                   }break;
+
+               }
+           }break;
+           case 0x82://录波参数
+           {
+               switch (rowOffset_H) {
+                   case 0:{//暂态录波基本配置
+                       if(rtnXmlData.ParamList[0].Param.count() != 7)
+                       {
+                           qDebug()<<g_C2Q("参数个数不匹配，理论值：7，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count();
+                           return;
+                       }
+                       pubData.generalWRParamTransient.dataNum = 7;
+                       pubData.generalWRParamTransient.dataList.clear();
+                       for(int i=0;i<rtnXmlData.ParamList[0].Param.count();i++)
+                       {
+                           PublicDataClass::GENERAL_DATA tempData;
+                           //值
+                           //类型
+                           //长度
+                           tempData.value = rtnXmlData.ParamList[0].Param[i].value;
+                           tempData.type = rtnXmlData.ParamList[0].Param[i].type;
+                           tempData.length = rtnXmlData.ParamList[0].Param[i].length;
+                           pubData.generalWRParamTransient.dataList.append(tempData);
+                       }
+
+                   }break;
+                   case 1:{//稳态录波基本配置
+                       if(rtnXmlData.ParamList[0].Param.count() != 2)
+                       {
+                           qDebug()<<g_C2Q("参数个数不匹配，理论值：2，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count();
+                           return;
+                       }
+                       pubData.generalWRParamSteady.dataNum = 2;
+                       pubData.generalWRParamSteady.dataList.clear();
+                       for(int i=0;i<rtnXmlData.ParamList[0].Param.count();i++)
+                       {
+                           PublicDataClass::GENERAL_DATA tempData;
+                           //值
+                           //类型
+                           //长度
+                           tempData.value = rtnXmlData.ParamList[0].Param[i].value;
+                           tempData.type = rtnXmlData.ParamList[0].Param[i].type;
+                           tempData.length = rtnXmlData.ParamList[0].Param[i].length;
+                           pubData.generalWRParamSteady.dataList.append(tempData);
+                       }
+
+                   }break;
+                   case 2:{//开关量触发
+                       if(rtnXmlData.ParamList.count() != (CHANNELNUM_SWITCH+1))
+                       {
+                           qDebug()<<g_C2Q("参数行数不匹配，理论值：(CHANNELNUM_SWITCH+1)=17，读取返回参数个数：")<<rtnXmlData.ParamList.count();
+                           return;
+                       }
+
+                       for(int i=0;i<rtnXmlData.ParamList.count();i++)
+                       {
+                           if(i==0)
+                           {
+                               if(rtnXmlData.ParamList[i].Param.count() != 3)
+                               {
+                                   qDebug()<<g_C2Q("参数个数不匹配，理论值：3，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count()<<g_C2Q("(当前行_")<<i<<")";
+                                   return;
+                               }
+                               pubData.generalWRParamSwitch[i].dataNum = 3;
+                           }
+                           else
+                           {
+                               if(rtnXmlData.ParamList[i].Param.count() != 4)
+                               {
+                                   qDebug()<<g_C2Q("参数个数不匹配，理论值：4，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count()<<g_C2Q("(当前行_")<<i<<")";
+                                   return;
+                               }
+                               pubData.generalWRParamSwitch[i].dataNum = 4;
+                           }
+
+                           pubData.generalWRParamSwitch[i].dataList.clear();
+                           for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
+                           {
+                               PublicDataClass::GENERAL_DATA tempData;
+                               //值
+                               //类型
+                               //长度
+                               tempData.value = rtnXmlData.ParamList[i].Param[j].value;
+                               tempData.type = rtnXmlData.ParamList[i].Param[j].type;
+                               tempData.length = rtnXmlData.ParamList[i].Param[j].length;
+                               pubData.generalWRParamSwitch[i].dataList.append(tempData);
+                           }
+                       }
+
+                   }break;
+                   case 3:{//模拟量触发
+                       if(rtnXmlData.ParamList.count() != (CHANNELNUM_ANALOG+1))
+                       {
+                           qDebug()<<g_C2Q("参数行数不匹配，理论值：(CHANNELNUM_ANALOG+1)=19，读取返回参数个数：")<<rtnXmlData.ParamList.count();
+                           return;
+                       }
+
+                       for(int i=0;i<rtnXmlData.ParamList.count();i++)
+                       {
+                           if(i==0)
+                           {
+                               if(rtnXmlData.ParamList[i].Param.count() != 1)
+                               {
+                                   qDebug()<<g_C2Q("参数个数不匹配，理论值：1，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count()<<g_C2Q("(当前行_")<<i<<")";
+                                   return;
+                               }
+                               pubData.generalWRParamAnalog[i].dataNum = 1;
+                           }
+                           else
+                           {
+                               if(rtnXmlData.ParamList[i].Param.count() != 17)
+                               {
+                                   qDebug()<<g_C2Q("参数个数不匹配，理论值：17，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count()<<g_C2Q("(当前行_")<<i<<")";
+                                   return;
+                               }
+                               pubData.generalWRParamAnalog[i].dataNum = 17;
+                           }
+
+                           pubData.generalWRParamAnalog[i].dataList.clear();
+                           for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
+                           {
+                               PublicDataClass::GENERAL_DATA tempData;
+                               //值
+                               //类型
+                               //长度
+                               tempData.value = rtnXmlData.ParamList[i].Param[j].value;
+                               tempData.type = rtnXmlData.ParamList[i].Param[j].type;
+                               tempData.length = rtnXmlData.ParamList[i].Param[j].length;
+                               pubData.generalWRParamAnalog[i].dataList.append(tempData);
+                           }
+                       }
+                   }break;
+                   case 4:{//分组/序分量
+                        if(rtnXmlData.ParamList.count() < 2 || rtnXmlData.ParamList.count() > 6)
+                        {
+                            qDebug()<<g_C2Q("参数行数不匹配，理论值：(1-4)+1，读取返回参数个数：")<<rtnXmlData.ParamList.count();
+                            return;
+                        }
+                        int groupNum = rtnXmlData.ParamList[0].Param[0].value.toInt();
+                        if(rtnXmlData.ParamList.count() != (groupNum+1))
+                        {
+                            qDebug()<<g_C2Q("参数行数不匹配，理论值(组数+1)：")<<(groupNum+1)
+                                    <<g_C2Q(",读取返回参数行数：")<<rtnXmlData.ParamList.count();
+                            return;
+                        }
+
+                        for(int i=0;i<rtnXmlData.ParamList.count();i++)
+                        {
+                            if(i==0)
+                            {
+                                if(rtnXmlData.ParamList[i].Param.count() != 1)
+                                {
+                                    qDebug()<<g_C2Q("参数个数不匹配，理论值：1，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count()<<g_C2Q("(当前行_")<<i<<")";
+                                    return;
+                                }
+                                pubData.generalWRParamComponent[i].dataNum = 1;
+                            }
+                            else
+                            {
+                                if(rtnXmlData.ParamList[i].Param.count() != 15)
+                                {
+                                    qDebug()<<g_C2Q("参数个数不匹配，理论值：15，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count()<<g_C2Q("(当前行_")<<i<<")";
+                                    return;
+                                }
+                                pubData.generalWRParamComponent[i].dataNum = 15;
+                            }
+
+                            pubData.generalWRParamComponent[i].dataList.clear();
+                            for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
+                            {
+                                PublicDataClass::GENERAL_DATA tempData;
+                                //值
+                                //类型
+                                //长度
+                                tempData.value = rtnXmlData.ParamList[i].Param[j].value;
+                                tempData.type = rtnXmlData.ParamList[i].Param[j].type;
+                                tempData.length = rtnXmlData.ParamList[i].Param[j].length;
+                                pubData.generalWRParamComponent[i].dataList.append(tempData);
+                            }
+                        }
+
+                   }break;
+                   //0x01000582 手动录波启动/停止
+               }
+           }break;
+           case 0x83://电能量
+           {
+               switch (rowOffset_H) {
+                   case 0:{//电能表检相关配置参数
+
+                   }break;
+                   case 1:{//电能检定输入脉冲参数
+                       if(rtnXmlData.ParamList[0].Param.count() != 6)
+                       {
+                           qDebug()<<g_C2Q("参数个数不匹配，理论值：6，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count();
+                           return;
+                       }
+                       pubData.generalWRParamPulseIn.dataNum = rtnXmlData.ParamList[0].Param.count();
+                       pubData.generalWRParamPulseIn.dataList.clear();
+
+                       for(int i=0;i<rtnXmlData.ParamList[0].Param.count();i++)
+                       {
+                           PublicDataClass::GENERAL_DATA tempData;
+                           //值
+                           //类型
+                           //长度
+                           tempData.value = rtnXmlData.ParamList[0].Param[i].value;
+                           tempData.type = rtnXmlData.ParamList[0].Param[i].type;
+                           tempData.length = rtnXmlData.ParamList[0].Param[i].length;
+                           pubData.generalWRParamPulseIn.dataList.append(tempData);
+                       }
+                   }break;
+                   case 2:{//电能输出脉冲参数
+                       if(rtnXmlData.ParamList[0].Param.count() != 6)
+                       {
+                           qDebug()<<g_C2Q("参数个数不匹配，理论值：6，读取返回参数个数：")<<rtnXmlData.ParamList[0].Param.count();
+                           return;
+                       }
+                       pubData.generalWRParamPulseOut.dataNum = rtnXmlData.ParamList[0].Param.count();
+                       pubData.generalWRParamPulseOut.dataList.clear();
+
+                       for(int i=0;i<rtnXmlData.ParamList[0].Param.count();i++)
+                       {
+                           PublicDataClass::GENERAL_DATA tempData;
+                           //值
+                           //类型
+                           //长度
+                           tempData.value = rtnXmlData.ParamList[0].Param[i].value;
+                           tempData.type = rtnXmlData.ParamList[0].Param[i].type;
+                           tempData.length = rtnXmlData.ParamList[0].Param[i].length;
+                           pubData.generalWRParamPulseOut.dataList.append(tempData);
+                       }
+                   }break;
+                   case 3:{
+
+                   }break;
+                   case 4:{
+
+                   }break;
+                   case 5:{
+
+                   }break;
+               }
+           }break;
+           case 0x84://校准
+           {
+               switch (rowOffset_H) {
+                   case 0:{//校准参数
+
+                   }break;
+                   case 1:{//校准命令
+
+                   }break;
+                   case 2:{
+
+                   }break;
+
+               }
+           }break;
+           case 0x85://录波
+           {
+               switch (rowOffset_H) {
+                   //实时传输启动/停止设置：0x01000085
+                   case 1:{//实时数据
+
+                   }break;
+                   case 2:{
+
+                   }break;
+
+               }
+           }break;
+           case 0x86://录波文件召测
+           {
+               switch (rowOffset_H) {
+                   //录波完成主动上传(故障录波序号)：0x01000086
+                   case 1:{//波形数据召测
+
+                   }break;
+                   case 2:{
+
+                   }break;
+
+               }
+           }break;
+       }
+
+    }
+
+
 }
 
 void DevDataTransfer_wr::wr_sendParamCommunicate(int            typeID)/*,

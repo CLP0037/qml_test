@@ -201,6 +201,12 @@ public:
     //标准表实时测量数据召测
     Q_INVOKABLE void wr_sendMeterRealDataCall();
 
+
+    //根据接收到的数据进行实时数据刷新
+    void refreshData(CustomProtocol::_XmlDataStruct rtnXmlData);
+
+
+
 signals:
 
 private:
