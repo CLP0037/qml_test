@@ -28,6 +28,7 @@ DevDataTransfer_wr::DevDataTransfer_wr(QObject *parent) : QObject(parent)
     connect(wrServer, &WRServerStuff::msgRecv,this, &DevDataTransfer_wr::respondmsgRecv_server);
 
     returnCacheData.clear();
+    returnCacheData_realtime.clear();
 }
 
 void DevDataTransfer_wr::clientConnect(QString host,int port)
@@ -94,7 +95,7 @@ void DevDataTransfer_wr::serverSendbuf_filepath(int index,QString filepath)//测
     XmlData.ParamList.clear();
     XmlData.ParamList.append(temp_row);
 
-    priProtocal.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,SQ);
+    priProtocal_server.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,SQ);
 
     QByteArray buf;
     buf.clear();
@@ -134,7 +135,7 @@ void DevDataTransfer_wr::serverSendbuf_meter(int index)
 
     XmlData.ParamList.append(temp_row);
 
-    priProtocal.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,SQ);
+    priProtocal_server.EncodeParam(XmlData,pbuf,len,isover,objecttype,acttype,masteradr,slaveadr,SQ);
 
     QByteArray buf;
     buf.clear();
@@ -185,13 +186,15 @@ void DevDataTransfer_wr::encodefromXMLData(CustomProtocol::_XmlDataStruct tempXm
         temp_str += " ";
         buf.append((unsigned char)(*(pbuf+i)));
     }
-    qDebug()<<"client send_"<<timeStr<<":" << temp_str<<"(len="<<len<<")";
+    qDebug()<<"client send_"<<timeStr<<":" << temp_str<<"(len="<<len<<")"<<"type_"<<type;
 
     switch (type) {
         case 1:{
+
             wrClient->bufSend(buf);
         }break;
         case 2:{
+
             wrClient_realtime->bufSend(buf);
         }break;
 
@@ -212,8 +215,9 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
         temp_str += " ";
         pbuf[i] = (unsigned char)(qbaBuf[i]);
     }
-    qDebug()<<"client recv_"<<timeStr<< ":" << temp_str<<"(len="<<qbaBuf.size()<<")";
-    //qDebug()<<"client recv_"<<timeStr;
+    //qDebug()<<"client recv_"<<timeStr<< ":" << temp_str<<"(len="<<qbaBuf.size()<<")";
+    int seqnum = pbuf[17] + pbuf[18]*256;
+    qDebug()<<"client recv_"<<timeStr<<";type_"<<type<<";seqnum_"<<seqnum;
 
     QList<CustomProtocol::_ReturnDataStruct> returndatalist;
     //priProtocal.DecodeFrame(qbaBuf.data(),qbaBuf.size(),returndatalist);//pbuf
@@ -227,14 +231,14 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
 
     }
 
-    qDebug()<<"returndatalist count:"<<returndatalist.count();
+    qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"returndatalist count:"<<returndatalist.count();
 
     if(returndatalist.count() > 0)
     {
-        qDebug()<<"TypeID:"<<returndatalist[0].TypeID;
-        qDebug()<<"ObjectType:"<<returndatalist[0].ObjectType;
-        qDebug()<<"DataLength:"<<returndatalist[0].DataLength;
-        qDebug()<<"Revlen:"<<returndatalist[0].Revlen;
+        qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"TypeID:"<<returndatalist[0].TypeID;
+        //qDebug()<<"ObjectType:"<<returndatalist[0].ObjectType;
+        //qDebug()<<"DataLength:"<<returndatalist[0].DataLength;
+        //qDebug()<<"Revlen:"<<returndatalist[0].Revlen;
 
         if(returndatalist[0].TypeID == 1)//下载
         {
@@ -272,6 +276,7 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
 
                     if(type == 2)
                     {
+                        returnCacheData_realtime.clear();
                         encodefromXMLData(tempXmlData,2);
                     }
 
@@ -280,37 +285,68 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
         }
         else if(returndatalist[0].TypeID == 2 )//读取
         {
-            //returnCacheData.append(returndatalist[0].DataField);
-            //qDebug()<<"returndatalist[0].DataField"<<returndatalist[0].DataField;
             QString temp_buf;
-            if(returnCacheData.isEmpty())//第一帧缓存，保留信息体地址，后续帧剔除信息体地址
-            {
-                temp_buf="";
-                for(int i=0;i<returndatalist[0].DataLength;i++)
-                {
-                    returnCacheData.append(returndatalist[0].DataField[i]);
-                    temp_buf += QString("%1").arg((unsigned char)(returndatalist[0].DataField[i]),2,16,QLatin1Char('0'));
-                    temp_buf += " ";
-                }
-                qDebug()<<"temp_buf(first frame):"<<temp_buf;
-            }
-            else
-            {
-                temp_buf="";
-                for(int i=0;i<returndatalist[0].DataLength;i++)
-                {
-                    returnCacheData.append(returndatalist[0].DataField[i]);
-                    temp_buf += QString("%1").arg((unsigned char)(returndatalist[0].DataField[i]),2,16,QLatin1Char('0'));
-                    temp_buf += " ";
-                }
-                //qDebug()<<"temp_buf:"<<temp_buf;
-            }
 
-            qDebug()<<"returndatalist[0].DataLength:"<<returndatalist[0].DataLength<<";returnCacheData total size:"<<returnCacheData.size();
+            if(type == 1)
+            {
+                if(seqnum==1)returnCacheData.clear();
+                if(returnCacheData.isEmpty())//第一帧缓存，保留信息体地址，后续帧剔除信息体地址
+                {
+                    temp_buf="";
+                    for(int i=0;i<returndatalist[0].DataLength;i++)
+                    {
+                        returnCacheData.append(returndatalist[0].DataField[i]);
+                        temp_buf += QString("%1").arg((unsigned char)(returndatalist[0].DataField[i]),2,16,QLatin1Char('0'));
+                        temp_buf += " ";
+                    }
+                    qDebug()<<"temp_buf(first frame):"<<temp_buf;
+                }
+                else
+                {
+                    temp_buf="";
+                    for(int i=0;i<returndatalist[0].DataLength;i++)
+                    {
+                        returnCacheData.append(returndatalist[0].DataField[i]);
+                        temp_buf += QString("%1").arg((unsigned char)(returndatalist[0].DataField[i]),2,16,QLatin1Char('0'));
+                        temp_buf += " ";
+                    }
+                    //qDebug()<<"temp_buf:"<<temp_buf;
+                }
+                qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"returndatalist[0].DataLength:"<<returndatalist[0].DataLength<<";returnCacheData total size:"<<returnCacheData.size();
+            }
+            else if(type == 2)
+            {
+                if(seqnum==1)returnCacheData_realtime.clear();
+                if(returnCacheData_realtime.isEmpty())//第一帧缓存，保留信息体地址，后续帧剔除信息体地址
+                {
+                    temp_buf="";
+                    for(int i=0;i<returndatalist[0].DataLength;i++)
+                    {
+                        returnCacheData_realtime.append(returndatalist[0].DataField[i]);
+                        temp_buf += QString("%1").arg((unsigned char)(returndatalist[0].DataField[i]),2,16,QLatin1Char('0'));
+                        temp_buf += " ";
+                    }
+                    //qDebug()<<"temp_buf(first frame):"<<temp_buf;
+                }
+                else
+                {
+                    temp_buf="";
+                    for(int i=0;i<returndatalist[0].DataLength;i++)
+                    {
+                        returnCacheData_realtime.append(returndatalist[0].DataField[i]);
+                        temp_buf += QString("%1").arg((unsigned char)(returndatalist[0].DataField[i]),2,16,QLatin1Char('0'));
+                        temp_buf += " ";
+                    }
+                    //qDebug()<<"temp_buf:"<<temp_buf;
+                }
+                qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"returndatalist[0].DataLength:"<<returndatalist[0].DataLength<<";returnCacheData_realtime total size:"<<returnCacheData_realtime.size();
+            }
+            //
 
+            //帧传输是否结束=====传输结束，处理缓存数据
             if(returndatalist[0].IsOver)//帧传输结束，无后续
             {
-                qDebug()<<"returndatalist[0].IsOver = true";
+                qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"returndatalist[0].IsOver = true";
                 //帧传输结束，帧解析
                 CustomProtocol::_XmlDataStruct rtnXmlData;
                 CustomProtocol::_RowInforStruct temp_row;
@@ -636,113 +672,120 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
 
                         switch((unsigned char)(pbuf[24]))
                         {
-                        case 0x00://实时传输启动/停止设置确认
-                        {
-                            temp_row.Param.clear();
-                            rtnXmlData.ParamList.clear();
-                            rtnXmlData.ParamList.append(temp_row);
-                        }break;
-                        case 0x01://实时数据主动上传
-                        {
-                            rtnXmlData.ParamList.clear();
-
-                            //通道个数
-                            //数据点数N
-                            if(returnCacheData.size() < 14+4)
+                            case 0x00://实时传输启动/停止设置确认
                             {
-                                //通用信息无法正常提取，数据域内容异常
-                                qWarning()<<"returndatalist DataLength less than 14+4(wave record data)";
-                                return;
-                            }
-
-                            //缓存内容
-                            QString temp_str1;
-                            for(int i=0;i<14+4;i++)
-                            {
-                                temp_str1 += QString("%1").arg(char(returnCacheData[i])&0xFF,2,16,QChar('0'));
-                                temp_str1 += " ";
-
-                            }
-                            qDebug()<<"returndatalist:" << temp_str1<<"(total len="<<returnCacheData.size()<<")";
-
-
-                            int num_channel = returnCacheData[7+4]&0xff;
-                            int num_dataN = (returnCacheData[8+4]&0xff) + (returnCacheData[9+4]&0xff)*256;
-                            qWarning()<<g_C2Q("录波数据上传：通道个数_")<<num_channel<<g_C2Q(";数据点数N_")<<num_dataN;
-
-                            pubData.generalWRComtradeData.dataNum = 4 + num_channel*(2+num_dataN);
-                            pubData.generalWRComtradeData.dataList.clear();
-
-
-
-
-//                            //信息体地址：
-//                            temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
-//                            temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8);//行偏移量(低位)
-
-                            qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
-                            temp_row.Param.clear();
-
-                            //4个公共信息
-                            for(int i=0;i<4;i++)
+                                temp_row.Param.clear();
+                                rtnXmlData.ParamList.clear();
+                                rtnXmlData.ParamList.append(temp_row);
+                            }break;
+                            case 0x01://实时数据上传
                             {
 
-                                temp_column.value = "";
-                                switch (i) {
-                                case 0:{
-                                    temp_column.type = pubData.Type_datetime;
-                                }break;
-                                case 1:{
-                                    temp_column.type = pubData.Type_byte;
-                                }break;
-                                case 2:{
-                                    temp_column.type = pubData.Type_ushort;
-                                }break;
-                                case 3:{
-                                    temp_column.type = pubData.Type_float;
-                                }break;
-
-                                }
-
-                                temp_column.length = pubData.getLenfromType(temp_column.type);
-                                temp_row.Param.append(temp_column);
-                            }
-                            //通道数据信息
-                            for(int i=0;i<num_channel;i++)
-                            {
-                                //通道号
-                                temp_column.value = "";
-                                temp_column.type = pubData.Type_byte;
-                                temp_column.length = pubData.getLenfromType(temp_column.type);
-                                temp_row.Param.append(temp_column);
-                                //通道系数
-                                temp_column.value = "";
-                                temp_column.type = pubData.Type_float;
-                                temp_column.length = pubData.getLenfromType(temp_column.type);
-                                temp_row.Param.append(temp_column);
-                                //数据值1-N
-                                for(int j=0;j<num_dataN;j++)
+                                if(type == 1)
                                 {
-                                    temp_column.value = "";
-                                    temp_column.type = pubData.Type_ushort;
-                                    temp_column.length = pubData.getLenfromType(temp_column.type);
-                                    temp_row.Param.append(temp_column);
+                                    temp_row.Param.clear();
+                                    rtnXmlData.ParamList.clear();
+                                    rtnXmlData.ParamList.append(temp_row);
+                                }
+                                else if(type == 2)//默认实时数据通道解析
+                                {
+                                    //通道个数
+                                    //数据点数N
+                                    if(returnCacheData_realtime.size() < 14+4)
+                                    {
+                                        //通用信息无法正常提取，数据域内容异常
+                                        qWarning()<<"returndatalist DataLength less than 14+4(wave record data)";
+                                        return;
+                                    }
+
+                                    //缓存内容
+                                    QString temp_str1;
+                                    for(int i=0;i<14+4;i++)
+                                    {
+                                        temp_str1 += QString("%1").arg(char(returnCacheData_realtime[i])&0xFF,2,16,QChar('0'));
+                                        temp_str1 += " ";
+
+                                    }
+                                    qDebug()<<"returndatalist:" << temp_str1<<"(total len="<<returnCacheData_realtime.size()<<")";
+
+
+                                    int num_channel = returnCacheData_realtime[7+4]&0xff;
+                                    int num_dataN = (returnCacheData_realtime[8+4]&0xff) + (returnCacheData_realtime[9+4]&0xff)*256;
+                                    qWarning()<<g_C2Q("录波数据上传：通道个数_")<<num_channel<<g_C2Q(";数据点数N_")<<num_dataN;
+
+                                    pubData.generalWRComtradeData.dataNum = 4 + num_channel*(2+num_dataN);
+                                    pubData.generalWRComtradeData.dataList.clear();
+
+
+
+
+        //                            //信息体地址：
+        //                            temp_row.RowInfoAddr = 0x0100;//参数信息体地址(高位)
+        //                            temp_row.RowOffset = (unsigned char)(pbuf[23])+(((unsigned char)(pbuf[24]))<<8);//行偏移量(低位)
+
+                                    qDebug()<<"temp_row.RowInfoAddr:"<<temp_row.RowInfoAddr<<";temp_row.RowOffset"<<temp_row.RowOffset;
+                                    temp_row.Param.clear();
+
+                                    //4个公共信息
+                                    for(int i=0;i<4;i++)
+                                    {
+
+                                        temp_column.value = "";
+                                        switch (i) {
+                                        case 0:{
+                                            temp_column.type = pubData.Type_datetime;
+                                        }break;
+                                        case 1:{
+                                            temp_column.type = pubData.Type_byte;
+                                        }break;
+                                        case 2:{
+                                            temp_column.type = pubData.Type_ushort;
+                                        }break;
+                                        case 3:{
+                                            temp_column.type = pubData.Type_float;
+                                        }break;
+
+                                        }
+
+                                        temp_column.length = pubData.getLenfromType(temp_column.type);
+                                        temp_row.Param.append(temp_column);
+                                    }
+                                    //通道数据信息
+                                    for(int i=0;i<num_channel;i++)
+                                    {
+                                        //通道号
+                                        temp_column.value = "";
+                                        temp_column.type = pubData.Type_byte;
+                                        temp_column.length = pubData.getLenfromType(temp_column.type);
+                                        temp_row.Param.append(temp_column);
+                                        //通道系数
+                                        temp_column.value = "";
+                                        temp_column.type = pubData.Type_float;
+                                        temp_column.length = pubData.getLenfromType(temp_column.type);
+                                        temp_row.Param.append(temp_column);
+                                        //数据值1-N
+                                        for(int j=0;j<num_dataN;j++)
+                                        {
+                                            temp_column.value = "";
+                                            temp_column.type = pubData.Type_ushort;
+                                            temp_column.length = pubData.getLenfromType(temp_column.type);
+                                            temp_row.Param.append(temp_column);
+                                        }
+
+                                    }
+
+                                    rtnXmlData.ParamList.clear();
+                                    rtnXmlData.ParamList.append(temp_row);
                                 }
 
-                            }
 
-                            rtnXmlData.ParamList.clear();
-                            rtnXmlData.ParamList.append(temp_row);
-
-                        }break;
+                            }break;
 
                         }
                     }break;
                 }
 
-//                //priProtocal.AnalysisRevData(rtnXmlData,1,returndatalist[0].DataField,returndatalist[0].DataLength);
-//                priProtocal.AnalysisRevData(rtnXmlData,1,returnCacheData.data(),returnCacheData.size());
-//                qDebug()<<"ParamList.count():"<<rtnXmlData.ParamList.count()<<";returnCacheData.size():"<<returnCacheData.size();
+                qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"ParamList.count():"<<rtnXmlData.ParamList.count();
                 switch (type) {
                     case 1:{
                         priProtocal.AnalysisRevData(rtnXmlData,1,returnCacheData.data(),returnCacheData.size());
@@ -750,24 +793,33 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
                         returnCacheData.clear();//解析完成，清空缓存
                     }break;
                     case 2:{
-                        priProtocal_realtime.AnalysisRevData(rtnXmlData,1,returnCacheData_realtime.data(),returnCacheData.size());
-                        qDebug()<<"ParamList.count():"<<rtnXmlData.ParamList.count()<<";returnCacheData.size():"<<returnCacheData_realtime.size();
+//                        for(int i=0;i<returnCacheData_realtime.size();i++)
+//                        {
+
+//                        }
+                        priProtocal_realtime.AnalysisRevData(rtnXmlData,1,returnCacheData_realtime.data(),returnCacheData_realtime.size());
+                        qDebug()<<"ParamList.count():"<<rtnXmlData.ParamList.count()<<";returnCacheData_realtime.size():"<<returnCacheData_realtime.size();
                         returnCacheData_realtime.clear();//解析完成，清空缓存
                     }break;
 
                 }
 
                 //接收到的内容解析后，进行界面数据刷新
-                refreshData(rtnXmlData);
-
+                //refreshData(rtnXmlData);
+                if(rtnXmlData.ParamList.count() > 0)
+                {
+                    qDebug()<<"rtnXmlData.ParamList[0].Param[0].value"<<rtnXmlData.ParamList[0].Param[0].value;
+                }
+                qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"returndatalist[0].Txlen:"<<returndatalist[0].Txlen;
             }
             else
             {
-                qDebug()<<"returndatalist[0].IsOver = false"<<g_C2Q("分帧传输，未完待续");
+                qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"returndatalist[0].IsOver = false"<<g_C2Q("分帧传输，未完待续");
             }
 
         }
 
+        qDebug()<<(QDateTime::currentDateTime()).toString("yyyy-MM-dd hh:mm:ss:zzz")<<"returndatalist[0].Txlen:"<<returndatalist[0].Txlen;
         if(returndatalist[0].Txlen > 0)//有内容发送
         {
             QDateTime time1 = QDateTime::currentDateTime();//获取系统现在的时间
@@ -781,7 +833,7 @@ void DevDataTransfer_wr::decodeRecievedData(QByteArray qbaBuf,int type)
                 temp_str += " ";
                 buf.append((unsigned char)(returndatalist[0].Tbuf[i]));
             }
-            qDebug()<<"client send(sequence)_"<<timeStr1<<":" << temp_str<<"(len="<<returndatalist[0].Txlen<<")";
+            qDebug()<<"client send(sequence)_"<<timeStr1<<":" << temp_str<<"(len="<<returndatalist[0].Txlen<<")"<<"type_"<<type;
 
             //wrClient->bufSend(buf);
             switch (type) {
@@ -808,7 +860,7 @@ void DevDataTransfer_wr::refreshData(CustomProtocol::_XmlDataStruct rtnXmlData)
                    <<";RowOffset:"<<rtnXmlData.ParamList[i].RowOffset;
             for(int j=0;j<rtnXmlData.ParamList[i].Param.count();j++)
             {
-                if(j%200 == 0)
+                if(j == 0)
                     qDebug()<<"rtnXmlData.ParamList[i].Param[j].value"<<rtnXmlData.ParamList[i].Param[j].value//.toUtf8()
                        <<"(i="<<i<<",j="<<j<<")";
             }
@@ -830,7 +882,7 @@ void DevDataTransfer_wr::refreshData(CustomProtocol::_XmlDataStruct rtnXmlData)
                return;
        }
 
-
+/*
 
        switch (rowOffset_L) {
            case 0x80://通讯配置
@@ -1208,7 +1260,23 @@ void DevDataTransfer_wr::refreshData(CustomProtocol::_XmlDataStruct rtnXmlData)
            {
                switch (rowOffset_H) {
                    //实时传输启动/停止设置：0x01000085
-                   case 1:{//实时数据
+                   case 1:{//实时数据  generalWRComtradeData
+
+                    qDebug()<<"generalWRComtradeData rtnXmlData struct count:"<<rtnXmlData.ParamList[0].Param.count();
+                       pubData.generalWRComtradeData.dataNum = rtnXmlData.ParamList[0].Param.count();
+                       pubData.generalWRComtradeData.dataList.clear();
+
+                       for(int i=0;i<rtnXmlData.ParamList[0].Param.count();i++)
+                       {
+                           PublicDataClass::GENERAL_DATA tempData;
+                           //值
+                           //类型
+                           //长度
+                           tempData.value = rtnXmlData.ParamList[0].Param[i].value;
+                           tempData.type = rtnXmlData.ParamList[0].Param[i].type;
+                           tempData.length = rtnXmlData.ParamList[0].Param[i].length;
+                           pubData.generalWRComtradeData.dataList.append(tempData);
+                       }
 
                    }break;
                    case 2:{
@@ -1231,7 +1299,7 @@ void DevDataTransfer_wr::refreshData(CustomProtocol::_XmlDataStruct rtnXmlData)
                }
            }break;
        }
-
+*/
     }
 
 
@@ -1593,7 +1661,7 @@ void DevDataTransfer_wr::wr_sendWRParamSwitch(int            typeID)
 void DevDataTransfer_wr::wr_sendWRParamAnalog(int            typeID)
 {
     testdata.setWRParamAnalog();
-    returnCacheData.clear();//新的命令下发，接收缓存清空
+   returnCacheData.clear();//新的命令下发，接收缓存清空
 
     //直接赋值
     CustomProtocol::_XmlDataStruct tempXmlData;
@@ -1637,7 +1705,7 @@ void DevDataTransfer_wr::wr_sendWRParamAnalog(int            typeID)
 void DevDataTransfer_wr::wr_sendWRParamComponent(int            typeID)
 {
     testdata.setWRParamComponent();
-    returnCacheData.clear();//新的命令下发，接收缓存清空
+   returnCacheData.clear();//新的命令下发，接收缓存清空
 
     //直接赋值
     CustomProtocol::_XmlDataStruct tempXmlData;
@@ -1681,7 +1749,7 @@ void DevDataTransfer_wr::wr_sendWRParamComponent(int            typeID)
 
 void DevDataTransfer_wr::wr_sendWROperate(char value)
 {
-    returnCacheData.clear();//新的命令下发，接收缓存清空
+   returnCacheData.clear();//新的命令下发，接收缓存清空
 
     //直接赋值
     CustomProtocol::_XmlDataStruct tempXmlData;
@@ -1710,7 +1778,7 @@ void DevDataTransfer_wr::wr_sendWROperate(char value)
 
 void DevDataTransfer_wr::wr_sendPowerMeterOperate(char value)
 {
-    returnCacheData.clear();//新的命令下发，接收缓存清空
+   returnCacheData.clear();//新的命令下发，接收缓存清空
 
     //直接赋值
     CustomProtocol::_XmlDataStruct tempXmlData;
@@ -1740,7 +1808,7 @@ void DevDataTransfer_wr::wr_sendPowerMeterOperate(char value)
 void DevDataTransfer_wr::wr_sendPowerMeterParamPulseIn(int            typeID)
 {
     testdata.setWRParamPulseIn();
-    returnCacheData.clear();//新的命令下发，接收缓存清空
+   returnCacheData.clear();//新的命令下发，接收缓存清空
 
     //直接赋值
     CustomProtocol::_XmlDataStruct tempXmlData;
@@ -1776,7 +1844,7 @@ void DevDataTransfer_wr::wr_sendPowerMeterParamPulseIn(int            typeID)
 void DevDataTransfer_wr::wr_sendPowerMeterParamPulseOut(int            typeID)
 {
     testdata.setWRParamPulseOut();
-    returnCacheData.clear();//新的命令下发，接收缓存清空
+   returnCacheData.clear();//新的命令下发，接收缓存清空
 
     //直接赋值
     CustomProtocol::_XmlDataStruct tempXmlData;
@@ -1821,7 +1889,7 @@ void DevDataTransfer_wr::wr_sendCalibrationOperate(int typeID,int currentIndex)
 
 void DevDataTransfer_wr::wr_sendRealDataTransfer(char value)
 {
-    returnCacheData.clear();//新的命令下发，接收缓存清空
+   returnCacheData.clear();//新的命令下发，接收缓存清空
 
     //直接赋值
     CustomProtocol::_XmlDataStruct tempXmlData;
@@ -1929,8 +1997,8 @@ void DevDataTransfer_wr::respondmsgRecv_server(QString ip , int port,QByteArray 
         temp_str += " ";
         pbuf[i] = (unsigned char)(qbaBuf[i]);
     }
-    qDebug()<<"client recv_"<<timeStr<< ":" << temp_str<<"(len="<<qbaBuf.size()<<",from"<<ip<<":"<<port<<")";
-    //qDebug()<<"client recv_"<<timeStr;
+    //qDebug()<<"server recv_"<<timeStr<< ":" << temp_str<<"(len="<<qbaBuf.size()<<",from"<<ip<<":"<<port<<")";
+    qDebug()<<"server recv_"<<timeStr;
 
     //解析
     QList<CustomProtocol::_ReturnDataStruct> returndatalist;//针对多帧通讯
@@ -1938,7 +2006,7 @@ void DevDataTransfer_wr::respondmsgRecv_server(QString ip , int port,QByteArray 
     CustomProtocol::_RowInforStruct temp_row;
     CustomProtocol::_ColumnInforStruct temp_column;
 
-    priProtocal.DecodeFrame(pbuf,qbaBuf.size(),returndatalist);
+    priProtocal_server.DecodeFrame(pbuf,qbaBuf.size(),returndatalist);
     qDebug()<<"returndatalist count:"<<returndatalist.count();
 
 

@@ -231,6 +231,7 @@ public:
 
     CustomProtocol priProtocal;
     CustomProtocol priProtocal_realtime;
+    CustomProtocol priProtocal_server;
     CustomProtocol::_XmlDataStruct XmlData;
 
 

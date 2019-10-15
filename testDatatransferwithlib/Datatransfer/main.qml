@@ -37,13 +37,15 @@ Window {
                onClicked: {
                    //"127.0.0.1"
                    //"192.168.4.30"
-                   dev_wr.clientConnect(txt_ip.text, Number(txt_port.text.toString()))
+                   //dev_wr.clientConnect(txt_ip.text, Number(txt_port.text.toString()))
+                   dev_wr.clientConnect_realtime(txt_ip.text, Number(txt_port.text.toString()))
                }
             }
             Button{
                text: qsTr("断开")
                onClicked: {
-                   dev_wr.clientDisConnect()
+                   //dev_wr.clientDisConnect()
+                   dev_wr.clientDisConnect_realtime()
                }
             }
         }
