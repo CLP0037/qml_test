@@ -18,6 +18,10 @@ Window {
             spacing: 10
 
             Label{
+                text: qsTr("   TCP   ")
+            }
+
+            Label{
                 text: qsTr("IP：")
             }
             TextField{
@@ -50,7 +54,44 @@ Window {
             }
         }
 
+        RowLayout{
+            height: 50
+            spacing: 10
 
+            Label{
+                text: qsTr("   UDP   ")
+            }
+
+            Label{
+                text: qsTr("IP：")
+            }
+            TextField{
+               id:txt_ip_udp
+               text:"127.0.0.1" //"192.168.4.30"  //
+            }
+            Label{
+                text: qsTr("Port：")
+            }
+            TextField{
+               id:txt_port_udp
+               text: "4010"
+            }
+
+            Button{
+               text: qsTr("连接")
+               onClicked: {
+                   //txt_ip_udp.text, Number(txt_port_udp.text.toString())
+
+               }
+            }
+            Button{
+               text: qsTr("断开")
+               onClicked: {
+
+
+               }
+            }
+        }
 
 
 
