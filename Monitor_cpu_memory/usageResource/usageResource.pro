@@ -33,6 +33,9 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+LIBS+=-ladvapi32
+LIBS += -lUser32
+
 HEADERS += \
     cpuinfo.h \
     generalinfo.h \

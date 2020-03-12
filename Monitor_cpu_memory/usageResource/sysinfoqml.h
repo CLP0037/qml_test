@@ -1,8 +1,14 @@
-#ifndef SYSINFOQML_H
+﻿#ifndef SYSINFOQML_H
 #define SYSINFOQML_H
 
 #include <QObject>
 #include "SysInfo.h"
+
+#include <windows.h>
+#include <iostream>
+#include "WinUser.h"
+#include "processthreadsapi.h"
+using namespace std;
 
 class SysInfoQML : public QObject
 {
@@ -19,6 +25,11 @@ public:
 
     double memTotal() const;
     double memUsage() const;
+
+    //关机
+    Q_INVOKABLE bool shutDown();
+    //重启
+    Q_INVOKABLE bool reBoot();
 
 public slots:
     void update();

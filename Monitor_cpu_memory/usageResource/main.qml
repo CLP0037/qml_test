@@ -1,6 +1,9 @@
-import QtQuick 2.6
+﻿import QtQuick 2.6
 import QtQuick.Window 2.2
+import QtQuick.Controls 2.5
 import SysInfoQML 1.0
+
+
 
 Window {
     visible: true
@@ -60,4 +63,56 @@ Window {
             memUsageBar.p_usage = id_sysInfo.memUsage * 100 / id_sysInfo.memTotal
         }
     }
+
+    Button {
+        id: button
+        x: 20
+        y: 123
+        width: 185
+        height: 37
+        text: qsTr("重启")
+
+        onClicked: {
+            id_sysInfo.reBoot()
+        }
+    }
+
+    Button {
+        id: button1
+        x: 25
+        y: 194
+        width: 185
+        height: 37
+        text: qsTr("关机")
+
+        onClicked: {
+            dialog_shutdown.open()
+            //id_sysInfo.shutDown()
+        }
+    }
+
+    Dialog{
+        id:dialog_shutdown
+        width: parent.width*0.3
+        height: parent.height*0.3
+        x:(parent.width - width) / 2
+        y:(parent.height - height) / 2
+        closePolicy: "NoAutoClose"
+        modal: true
+        standardButtons: Dialog.Ok | Dialog.Cancel
+
+        Text {
+            text: qsTr("确定重启吗？")
+            anchors.centerIn: parent
+        }
+
+        onAccepted: {
+            id_sysInfo.shutDown()
+            dialog_shutdown.close()
+        }
+        onClosed: {
+            dialog_shutdown.close()
+        }
+    }
+
 }
