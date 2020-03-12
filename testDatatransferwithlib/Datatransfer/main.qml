@@ -18,11 +18,15 @@ Window {
             spacing: 10
 
             Label{
+                text: qsTr("   TCP   ")
+            }
+
+            Label{
                 text: qsTr("IP：")
             }
             TextField{
                id:txt_ip
-               text:"192.168.4.30"  // "127.0.0.1"
+               text:"192.168.4.30"  //"127.0.0.1" //
             }
             Label{
                 text: qsTr("Port：")
@@ -37,25 +41,59 @@ Window {
                onClicked: {
                    //"127.0.0.1"
                    //"192.168.4.30"
-                   dev_wr.clientConnect(txt_ip.text, Number(txt_port.text.toString()))
+                   //dev_wr.clientConnect(txt_ip.text, Number(txt_port.text.toString()))
+                   dev_wr.clientConnect_realtime(txt_ip.text, Number(txt_port.text.toString()))
                }
             }
             Button{
                text: qsTr("断开")
                onClicked: {
-                   dev_wr.clientDisConnect()
+                   //dev_wr.clientDisConnect()
+                   dev_wr.clientDisConnect_realtime()
+               }
+            }
+        }
+
+        RowLayout{
+            height: 50
+            spacing: 10
+
+            Label{
+                text: qsTr("   UDP   ")
+            }
+
+            Label{
+                text: qsTr("IP：")
+            }
+            TextField{
+               id:txt_ip_udp
+               text:"127.0.0.1" //"192.168.4.30"  //
+            }
+            Label{
+                text: qsTr("Port：")
+            }
+            TextField{
+               id:txt_port_udp
+               text: "4010"
+            }
+
+            Button{
+               text: qsTr("连接")
+               onClicked: {
+                   //txt_ip_udp.text, Number(txt_port_udp.text.toString())
+
+               }
+            }
+            Button{
+               text: qsTr("断开")
+               onClicked: {
+
+
                }
             }
         }
 
 
-
-        Button{
-           text: qsTr("test")
-           onClicked: {
-               dev_wr.test()
-           }
-        }
 
         RowLayout{
             height: 50
@@ -68,6 +106,7 @@ Window {
             ComboBox{
                 id:combo_01
                 model: [qsTr("设置"),qsTr("读取")]
+                currentIndex: 1
             }
 
             ComboBox{

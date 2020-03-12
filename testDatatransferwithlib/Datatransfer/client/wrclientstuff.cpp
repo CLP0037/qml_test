@@ -1,9 +1,6 @@
 ﻿#include "wrclientstuff.h"
 
-WRClientStuff::WRClientStuff(/*const QString hostAddress,
-                             int port,*/
-                             QObject *parent
-                             ) : QObject(parent)
+WRClientStuff::WRClientStuff(QObject *parent) : QObject(parent)
 {
     mStatus = false;
 //    mHost = hostAddress;

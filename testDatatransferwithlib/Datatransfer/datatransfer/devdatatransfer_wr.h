@@ -25,9 +25,9 @@ public:
     //======================================= 客户端连接 ==========================================//
     Q_INVOKABLE void clientConnect(QString host,int port);
     Q_INVOKABLE void clientDisConnect();
-    Q_INVOKABLE void test();   
-//    Q_INVOKABLE int wr_connect(QString hostname, int tcpPort);
-//    Q_INVOKABLE void wr_devdisconnect(QString hostname, int tcpPort);
+
+    Q_INVOKABLE void clientConnect_realtime(QString host,int port);
+    Q_INVOKABLE void clientDisConnect_realtime();
 
     //======================================= 服务端连接 ==========================================//
     Q_INVOKABLE void startServer(int port);
@@ -42,7 +42,7 @@ public:
 
     //======================================= 与下位机通讯交互 ==========================================//
 
-    void encodefromXMLData(CustomProtocol::_XmlDataStruct tempXmlData);
+
 
     /**
      * @brief wr_sendParamCommunicate 通讯参数
@@ -201,14 +201,26 @@ public:
     //标准表实时测量数据召测
     Q_INVOKABLE void wr_sendMeterRealDataCall();
 
+
+    //根据接收到的数据进行实时数据刷新
+    void refreshData(CustomProtocol::_XmlDataStruct rtnXmlData);
+
+
+
 signals:
 
+private:
+    //type 1-wrClient 2-wrClient_realtime
+    void encodefromXMLData(CustomProtocol::_XmlDataStruct tempXmlData,int type);
+    void decodeRecievedData(QByteArray qbaBuf,int type);
 
 public slots:
     void respondStatus(bool newStatus);
     void respondmsgRecv(QByteArray qbaBuf);
     void respondmsgSend(QByteArray qbaBuf);
     void gotError(QAbstractSocket::SocketError err);
+
+    void respondmsgRecv_realtime(QByteArray qbaBuf);
 
     void respondclientNewConnect(QString ip , int port);
     void respondclientDisconnected(QString ip , int port);
@@ -218,19 +230,21 @@ public slots:
 public:
 
     CustomProtocol priProtocal;
+    CustomProtocol priProtocal_realtime;
+    CustomProtocol priProtocal_server;
     CustomProtocol::_XmlDataStruct XmlData;
-    QList<CustomProtocol::_ReturnDataStruct> ReturnDataList;
 
-    //CustomProtocol::_XmlDataStruct XmlData_ParamCommunicate;
+
     QByteArray returnCacheData;//接收数据域缓存
+    QByteArray returnCacheData_realtime;//接收数据域缓存
 
-
-
+    WRClientStuff *wrClient;
+    WRClientStuff *wrClient_realtime;
+    WRServerStuff *wrServer;
 
     //PublicDataClass pubData;
     TestData testdata;
-    WRClientStuff *wrClient;
-    WRServerStuff *wrServer;
+
 
 private:
 
