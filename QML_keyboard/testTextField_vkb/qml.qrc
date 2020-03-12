@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>VirtualKeyboard/VirtualKey.qml</file>
+        <file>VirtualKeyboard/VirtualKeyboard.qml</file>
+        <file>VirtualKeyboard/VirtualKeys.qml</file>
+        <file>VirtualKeyboard/TextField_vkb.qml</file>
+        <file>VirtualKeyboard/Private/InputEventSource.qml</file>
+        <file>VirtualKeyboard/Private/utils.js</file>
+        <file>VirtualKeyboard/Units.qml</file>
+        <file>VirtualKeyboard/Private/qmldir</file>
+        <file>VirtualKeyboard/qmldir</file>
+    </qresource>
+</RCC>

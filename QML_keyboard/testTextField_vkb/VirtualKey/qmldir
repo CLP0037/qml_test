@@ -1,0 +1,12 @@
+module com.github.midoriyakumo.qmlvirtualkey
+
+GameButtons 1.0 GameButtons.qml
+internal InputEventDefer InputEventDefer.qml
+MutitouchDispatcher 1.0 MutitouchDispatcher.qml
+RowKeys 1.0 RowKeys.qml
+internal TouchVisualRipple TouchVisualRipple.qml
+singleton Units 1.0 Units.qml
+VirtualKey 1.0 VirtualKey.qml
+VirtualKeyboard 1.0 VirtualKeyboard.qml
+VirtualKeys 1.0 VirtualKeys.qml
+VirtualPad 1.0 VirtualPad.qml

@@ -1,0 +1,8 @@
+module com.github.midoriyakumo.qmlvirtualkey
+
+
+singleton Units 1.0 Units.qml
+VirtualKey 1.0 VirtualKey.qml
+VirtualKeyboard 1.0 VirtualKeyboard.qml
+VirtualKeys 1.0 VirtualKeys.qml
+
